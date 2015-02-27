@@ -1,5 +1,18 @@
-void parseCmd(char* , char* host, char** file, int* serverPort)
-{
+void parseCmd(void){
+  string cmd;
+  //read cmd
+  
+  //ifconfig
+  if(!strcmp(cmd,"ifconfig")){
+    
+  }
+  //routes
+  
+  //down
+  
+  //up
+  
+  //send
   char *point1;
   char *point2;
   char *saveptr;
