@@ -33,9 +33,9 @@ private:
     sockaddr_in sin;
     //IP addresses/ports
     int remote_port;
-    char * my_VIP;
-    char * remote_VIP;
-    char * remote_IP;
+    string my_VIP;
+    string remote_VIP;
+    string remote_IP;
     
 public:
     
