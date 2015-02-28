@@ -31,6 +31,7 @@ private:
     char* host_IP;
     sockaddr_in si_me;
     vector<Interface> interfaces;
+    Table mytable;
     
 
     
