@@ -16,9 +16,8 @@
 #include <arpa/inet.h>
 #include <iostream>
 
-#sys/socket.h
-netinet/inet.h
-arpa/inet.h
+
+#include <netinet/inet.h>
 
 
 #define 
