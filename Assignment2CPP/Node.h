@@ -10,8 +10,9 @@
 #define __Routing__Node__
 
 #include "Interface.h"
-
+#include "Table.h"
 #define h_addr h_addr_list[0] /* for backward compatibility */
+
 
 /*
 typedef struct {
@@ -38,6 +39,8 @@ public:
     Node(FILE *f);
     
     Node();
+
+    void sendResp();
     void ifconfig();
     
     void routes();
@@ -53,6 +56,7 @@ public:
     void recv();
     
     void forward();
+
     
 
     
