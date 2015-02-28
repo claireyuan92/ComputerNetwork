@@ -8,6 +8,7 @@
 
 #include "Node.h"
 
+using namespace std;
 
 Node::Node(FILE *f){
     
@@ -46,5 +47,36 @@ bool Node:: up(int interface_id){
 // defined as mysend to avoid confliction with existing function send
 bool Node:: send(const char * addr,char * msg){
     return true;
-    
 }
+
+bool Node:: parseCmd(string cmd){
+
+  //ifconfig
+  if(!strcmp(cmd,"ifconfig")){
+    ifconfig();
+    return TRUE;
+  }
+  //route
+  if(!strcmp(cmd,"route")){
+    route();
+    return TRUE;
+  }
+      //down
+  if(!strncmp(cmd,"down ",5)){
+    int id;
+    istringstream(strtok(cmd.c_str()," "))>>id;
+    mynode.down(id);
+    return TURE;
+  }
+  if(!strcmp(cmd,"up ",3)){
+ 
+  }
+	
+  if(!strcmp(cmd,"send ",5)){
+
+  }
+    
+  cout<<"wrong command"<<endl;
+  return TRUE;
+}
+

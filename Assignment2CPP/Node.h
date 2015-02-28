@@ -72,7 +72,7 @@ class Node{
     
     // defined as mysend to avoid confliction with existing function send
     bool send(const char * addr,char * msg);
-
+    bool parseCmd(string cmd);
     
 };
 

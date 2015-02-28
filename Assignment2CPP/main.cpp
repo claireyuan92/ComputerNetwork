@@ -9,11 +9,24 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <iostream>
+#include <cstring>
+#include <sstream>
+#include <assert.h>
+#include <cstdlib>
+#include <list>
+#include <vector>
+#include <utility> //pair
+#include <fstream>
+
+
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include "Node.h"
+
+using namespace std;
 
 int main(int argc, const char * argv[]) {
     
@@ -29,5 +42,11 @@ int main(int argc, const char * argv[]) {
     }
     // Create NODE
     Node mynode(f);
-
+  cin.clear();
+  string cmd;
+  while(getline(cin,cmd)){
+    cout<<cmd;
+    mynode.parseCmd(cin);
+    cin.clear();
+  }
 }
