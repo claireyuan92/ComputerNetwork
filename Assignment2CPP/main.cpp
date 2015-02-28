@@ -26,7 +26,11 @@
 #include <stdbool.h>
 #include "Node.h"
 
+<<<<<<< HEAD
 using namespace std;
+=======
+
+>>>>>>> 213b3d8aa530fe8bad6663e9687a9c74220f411d
 
 int main(int argc, const char * argv[]) {
     
@@ -42,6 +46,7 @@ int main(int argc, const char * argv[]) {
     }
     // Create NODE
     Node mynode(f);
+<<<<<<< HEAD
   cin.clear();
   string cmd;
   while(getline(cin,cmd)){
@@ -49,4 +54,8 @@ int main(int argc, const char * argv[]) {
     mynode.parseCmd(cin);
     cin.clear();
   }
+=======
+
+
+>>>>>>> 213b3d8aa530fe8bad6663e9687a9c74220f411d
 }

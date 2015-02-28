@@ -10,6 +10,7 @@
 
 using namespace std;
 
+
 Node::Node(FILE *f){
     
     char *line = NULL;
@@ -41,6 +42,9 @@ bool Node:: down(int interface_id){
     return true;
 }
 bool Node:: up(int interface_id){
+    int sock;
+    
+    
     return true;
 }
 
