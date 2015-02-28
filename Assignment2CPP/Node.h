@@ -9,33 +9,49 @@
 #ifndef __Routing__Node__
 #define __Routing__Node__
 
-
-
 #include "Interface.h"
 
 #define h_addr h_addr_list[0] /* for backward compatibility */
 
+/*
+typedef struct {
+    NodeAddr Destination;
+    NodeAddr NextHop;
+    int Cost;
+    u_short TTL;
+} Route;
+*/
 using namespace std;
 
 class Node{
-    private:
+    
+private:
         
     char* host_IP;
-    int my_port;
-    
+    sockaddr_in si_me;
     vector<Interface> interfaces;
-    public:
+    
+
+    
+public:
+    
     Node(FILE *f);
+    
     void ifconfig();
     
     void routes();
     
-    bool down(int interface_id);
+    void down(int interface_id);
     
-    bool up(int interface_id);
+    void up(int interface_id);
     
-    // defined as mysend to avoid confliction with existing function send
-    bool send(const char * addr,char * msg);
+    void send(const char * addr,char * msg);
+    
+    //helpers
+    void recv();
+    
+    void forward();
+    
 
     
 };

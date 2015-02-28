@@ -15,6 +15,9 @@
 #include <stdbool.h>
 #include "Node.h"
 
+#define MAX_ROUTES 200
+#define MAX_TTL 120
+
 
 
 int main(int argc, const char * argv[]) {

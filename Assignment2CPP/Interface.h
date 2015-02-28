@@ -23,8 +23,10 @@
 #include <arpa/inet.h>
 #include <iostream>
 
-#define MTU (1400*8)
-#define BUFLEN (64*1024*8)
+#define MTU 1400
+#define BUFLEN 64*1024
+#define DOWN 0//
+#define UP 1//
 
 class Interface{
     
@@ -36,28 +38,15 @@ private:
     char * my_VIP;
     char * remote_VIP;
     char * remote_IP;
+    int status;
     
 public:
     
-    Interface(char *line){
-        char *pch;
-        
-        struct hostent *hp;
-        hp=gethostbyname(strtok(line, ":"));
-        remote_IP=strdup(hp->h_addr);
-        
-        pch = strtok (NULL, " ");
-        
-        remote_port=atoi(pch);
-        
-        pch= strtok (NULL, " ");
-        my_VIP = pch;
-        
-        pch= strtok (NULL, " ");
-        remote_VIP = pch;
-    }
+    Interface(char *line);
     
-    bool upInterface();
+  void setstatus(int stat);
+    
+    std::string configure();
 };
 
 
