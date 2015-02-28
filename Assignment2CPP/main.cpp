@@ -26,15 +26,11 @@
 #include <stdbool.h>
 #include "Node.h"
 
-<<<<<<< HEAD
 using namespace std;
-=======
-
->>>>>>> 213b3d8aa530fe8bad6663e9687a9c74220f411d
 
 int main(int argc, const char * argv[]) {
     
-    if(argc!=2){
+  /*    if(argc!=2){
         printf("Usage: Take one file as commandline input\n");
         return 1;
     }
@@ -46,16 +42,13 @@ int main(int argc, const char * argv[]) {
     }
     // Create NODE
     Node mynode(f);
-<<<<<<< HEAD
+  */
+  Node mynode;
   cin.clear();
   string cmd;
   while(getline(cin,cmd)){
-    cout<<cmd;
-    mynode.parseCmd(cin);
+    //cout<<cmd<<endl;
+    mynode.parseCmd(cmd);
     cin.clear();
   }
-=======
-
-
->>>>>>> 213b3d8aa530fe8bad6663e9687a9c74220f411d
 }

@@ -26,6 +26,7 @@ class Node{
     vector<Interface> interfaces;
     public:
     Node(FILE *f);
+    Node();//for debug
     void ifconfig();
     
     void routes();
@@ -35,7 +36,7 @@ class Node{
     bool up(int interface_id);
     
     // defined as mysend to avoid confliction with existing function send
-    bool send(const char * addr,char * msg);
+    bool send(string addr,string msg);
     bool parseCmd(string cmd);
     
 };

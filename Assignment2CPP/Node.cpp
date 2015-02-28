@@ -7,6 +7,8 @@
 //
 
 #include "Node.h"
+#include "Interface.h"
+
 
 using namespace std;
 
@@ -26,10 +28,13 @@ Node::Node(FILE *f){
     
     //2. creating interfaces
     while (getline(&line,&linecap, f)>0){
-        interface myIF(line);
+        Interface myIF(line);
         interfaces.push_back(myIF);
     }
 }
+
+//for debug
+Node::Node(){}
 
 void Node::ifconfig(){
     
@@ -39,48 +44,76 @@ void Node::routes(){
     
 }
 bool Node:: down(int interface_id){
+
+  cout<<"Interface "<<interface_id<<" down."<<endl;
     return true;
 }
 bool Node:: up(int interface_id){
     int sock;
     
+    cout<<"Interface "<<interface_id<<" up."<<endl;
     
     return true;
 }
 
 // defined as mysend to avoid confliction with existing function send
-bool Node:: send(const char * addr,char * msg){
+bool Node:: send(string addr,string msg){
+  cout<<"send to "<<addr<<" "<<msg<<".";
+
     return true;
 }
 
 bool Node:: parseCmd(string cmd){
 
   //ifconfig
-  if(!strcmp(cmd,"ifconfig")){
+  if(!strcmp(cmd.c_str(),"ifconfig")){
     ifconfig();
-    return TRUE;
+    return true;
   }
   //route
-  if(!strcmp(cmd,"route")){
-    route();
-    return TRUE;
+  if(!strcmp(cmd.c_str(),"routes")){
+    routes();
+    return true;
   }
       //down
-  if(!strncmp(cmd,"down ",5)){
+  if(!strncmp(cmd.c_str(),"down ",5)){
     int id;
-    istringstream(strtok(cmd.c_str()," "))>>id;
-    mynode.down(id);
-    return TURE;
+    char buf[100];
+    strcpy(buf,cmd.c_str());
+    char * cmdid = strtok(buf," ");
+    cmdid = strtok(NULL," "); 
+    //cout<<cmdid<<endl;
+    //istringstream(cmdid)>>id;
+    id = atoi(cmdid);
+    down(id);
+    return true;
   }
-  if(!strcmp(cmd,"up ",3)){
- 
+  if(!strncmp(cmd.c_str(),"up ",3)){
+    int id;
+    char buf[100];
+    strcpy(buf,cmd.c_str());
+    char * cmdid = strtok(buf," ");
+    cmdid = strtok(NULL," "); 
+    id = atoi(cmdid);
+    up(id);
+    return true;
   }
 	
-  if(!strcmp(cmd,"send ",5)){
-
+  if(!strncmp(cmd.c_str(),"send ",5)){
+    string des;
+    string msg;
+    cmd.erase(0,5);
+    char buf[100];
+    strcpy(buf,cmd.c_str());
+    char * cmdip = strtok(buf," ");
+    des = cmdip;
+    cmd.erase(0,des.size()+1); 
+    msg = cmd;
+    send(des,cmd);
+    return true;
   }
     
   cout<<"wrong command"<<endl;
-  return TRUE;
+  return true;
 }
 
