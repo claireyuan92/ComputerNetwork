@@ -15,6 +15,8 @@
 #include <stdbool.h>
 #include "Node.h"
 
+
+
 int main(int argc, const char * argv[]) {
     
     if(argc!=2){
@@ -29,5 +31,6 @@ int main(int argc, const char * argv[]) {
     }
     // Create NODE
     Node mynode(f);
+
 
 }
