@@ -37,6 +37,7 @@ public:
     
     Node(FILE *f);
     
+    Node();
     void ifconfig();
     
     void routes();
@@ -45,7 +46,8 @@ public:
     
     void up(int interface_id);
     
-    void send(const char * addr,char * msg);
+    void send(string addr,string msg);
+    bool parseCmd(string cmd);
     
     //helpers
     void recv();

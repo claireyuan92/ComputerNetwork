@@ -34,6 +34,6 @@ int main(int argc, const char * argv[]) {
     }
     // Create NODE
     Node mynode(f);
-
+    mynode.parseCmd("send 10.2.3.4 how are you");
 
 }

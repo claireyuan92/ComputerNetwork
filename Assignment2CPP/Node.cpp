@@ -32,6 +32,7 @@ Node::Node(FILE *f){
     //3. Building Server
     sockaddr_in si_other;
     socklen_t s, slen=sizeof(si_other);
+    
     char buf[BUFLEN];
     
     if((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
@@ -46,16 +47,15 @@ Node::Node(FILE *f){
         perror("simplex-talk: bind");
         exit(1);
     }
-    
+    /*
     
     if ((::recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *)&si_other, &slen))<0){
          perror("recvfrom():");
          exit(1);
     }
-    
-    if (si_other.sin_addr si_me.sin_addr) {
-        
-    }
+    */
+ 
+
     
 
 }
@@ -73,17 +73,21 @@ void Node::routes(){
 
 void Node:: down(int interface_id){
     interfaces[interface_id].setstatus(0);
+    
+    cout<<"Interface "<<interface_id<<" down."<<endl;
 }
 
 void Node:: up(int interface_id){
     
     interfaces[interface_id].setstatus(1);
+    cout<<"Interface "<<interface_id<<" up."<<endl;
     
     
 }
 
-void Node:: send(const char * addr,char * msg){
+void Node:: send(string  addr,string msg){
     
+    cout<<"send to "<<addr<<" "<<msg<<"."<<endl;
     
 }
 
@@ -92,5 +96,62 @@ void Node:: send(const char * addr,char * msg){
 void Node::recv(){
     
 }
+
+
+bool Node:: parseCmd(string cmd){
+    
+    //ifconfig
+    if(!strcmp(cmd.c_str(),"ifconfig")){
+        ifconfig();
+        return true;
+    }
+    //route
+    if(!strcmp(cmd.c_str(),"routes")){
+        routes();
+        return true;
+    }
+    //down
+    if(!strncmp(cmd.c_str(),"down ",5)){
+        int id;
+        char buf[100];
+        strcpy(buf,cmd.c_str());
+        char * cmdid = strtok(buf," ");
+        cmdid = strtok(NULL," ");
+        //cout<<cmdid<<endl;
+        //istringstream(cmdid)>>id;
+        id = atoi(cmdid);
+        down(id);
+        return true;
+    }
+    if(!strncmp(cmd.c_str(),"up ",3)){
+        int id;
+        char buf[100];
+        strcpy(buf,cmd.c_str());
+        char * cmdid = strtok(buf," ");
+        cmdid = strtok(NULL," ");
+        id = atoi(cmdid);
+        up(id);
+        return true;
+    }
+    
+    if(!strncmp(cmd.c_str(),"send ",5)){
+        string des;
+        string msg;
+        cmd.erase(0,5);
+        char buf[100];
+        strcpy(buf,cmd.c_str());
+        char * cmdip = strtok(buf," ");
+        des = cmdip;
+        cmd.erase(0,des.size()+1); 
+        msg = cmd;
+        send(des,cmd);
+        return true;
+    }
+    
+    cout<<"wrong command"<<endl;
+    return true;
+}
+
+
 
 void forward();

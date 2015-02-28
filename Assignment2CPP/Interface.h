@@ -28,6 +28,8 @@
 #define DOWN 0//
 #define UP 1//
 
+using namespace std;
+
 class Interface{
     
 private:
@@ -35,9 +37,9 @@ private:
     sockaddr_in sin;
     //IP addresses/ports
     int remote_port;
-    char * my_VIP;
-    char * remote_VIP;
-    char * remote_IP;
+    string my_VIP;
+    string remote_VIP;
+    string remote_IP;
     int status;
     
 public:

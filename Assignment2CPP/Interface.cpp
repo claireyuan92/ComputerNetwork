@@ -50,7 +50,7 @@ void Interface:: setstatus(int stat){
 
 string Interface::configure(){
     
-    string result = my_VIP + status? " up" : " down";
+    string result = my_VIP + (status? (" up" ): (" down"));
     return result;
 }
 
