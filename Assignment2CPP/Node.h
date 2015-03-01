@@ -11,8 +11,9 @@
 
 #include "Interface.h"
 #include "Table.h"
-#define h_addr h_addr_list[0] /* for backward compatibility */
+#include <netinet/ip.h>
 
+#define h_addr h_addr_list[0] /* for backward compatibility */
 
 /*
 typedef struct {
@@ -22,7 +23,19 @@ typedef struct {
     u_short TTL;
 } Route;
 */
+
 using namespace std;
+
+struct RIPpacket{
+    ip iph;
+    RIP payload;
+};
+
+
+struct Testpacket{
+    ip iph;
+    string payload;
+};
 
 class Node{
     
@@ -31,7 +44,6 @@ private:
     char* host_IP;
     sockaddr_in si_me;
     vector<Interface> interfaces;
-    Table mytable;
     
 
     
@@ -40,8 +52,11 @@ public:
     Node(FILE *f);
     
     Node();
-
-    void sendResp();
+    
+    RIPpacket pack(RIP payload,in_addr src,in_addr dst);
+    
+    Testpacket pack(string payload,in_addr src,in_addr dst);
+    
     void ifconfig();
     
     void routes();
@@ -57,7 +72,6 @@ public:
     void recv();
     
     void forward();
-
     
 
     

@@ -153,5 +153,28 @@ bool Node:: parseCmd(string cmd){
 }
 
 
+RIPpacket Node::pack(RIP payload,in_addr src,in_addr dst){
+    RIPpacket packet;
+    packet.iph.ip_p=200;/* */
+    packet.iph.ip_tos=0;
+    packet.iph.ip_ttl=MAXTTL;
+    packet.iph.ip_src=src;
+    packet.iph.ip_dst=dst;
+    packet.iph.ip_sum=0;
+    packet.iph.ip_len=20+sizeof(payload);
+    return packet;
+}
 
-void forward();
+Testpacket Node::pack(string payload,in_addr src,in_addr dst){
+    
+    Testpacket packet;
+    packet.iph.ip_p=0;/* protocol */
+    packet.iph.ip_tos=0;
+    packet.iph.ip_ttl=MAXTTL;
+    packet.iph.ip_src=src;
+    packet.iph.ip_dst=dst;
+    packet.iph.ip_len=20+sizeof(payload);
+    return packet;
+    
+}
+

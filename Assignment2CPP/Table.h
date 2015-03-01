@@ -15,43 +15,41 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <iostream>
+#include <map>
+#include "Interface.h"
+using namespace std;
 
-#sys/socket.h
-netinet/inet.h
-arpa/inet.h
-
-
-#define 
+typedef struct{
+    
+    uint32_t cost;
+    uint32_t address;
+    int TTL;
+} Route;
 
 
 typedef struct{
-  uint32_t cost;
-  unit32_t address;
-  int TTL;
-}Route;
+    uint32_t cost;
+    uint32_t address;
+} Entry;
 
 typedef struct{
-  uint16_t command;
-  unit16_t num_entries;
-  struct{
-    unit32_t cost;
-    unit32_t address;
-  }entries[num_entries];
-
-
-}RIP;
+    uint16_t command;
+    uint16_t num_entries;
+    Entry * entries;
+    
+} RIP;
 
 class Table{
     
 private:
-  map<unit32_t,Route> myTable;  
+    map<uint32_t, Route> myTable;
 public:
-  Table(Interface interface);
-
-  void update(RIP rip);
-  RIP makeReq();
-  RIP makeResp(int interface_id);
-
+    Table(Interface interface);
+    
+    void update(RIP rip);
+    RIP makeReq();
+    RIP makeResp(int interface_id);
+    
 };
 
 
