@@ -7,7 +7,7 @@
 //
 
 #include "Node.h"
-
+#include <arpa/inet.h>
 
 Node::Node(FILE *f){
     
@@ -18,15 +18,21 @@ Node::Node(FILE *f){
     if (getline(&line, &linecap, f)){
         struct hostent *hp;
         hp=gethostbyname(strtok(line, ":"));
-        host_IP=strdup(hp->h_addr);
+        char *p=strdup(hp->h_addr);
+        struct in_addr ip;
+        host_IP=inet_aton(p, &ip);
         si_me.sin_port = htons(atoi(strtok(NULL, "\n")));
     }
     
-    //2. creating interfaces
+    
+    //2. Creating interfaces
     while (getline(&line,&linecap, f)>0){
         Interface myIF(line);
         interfaces.push_back(myIF);
     }
+    
+    //3. Creating Routing table
+    my_tbl=new Table(interfaces);
     
     //3. Building Server
 
@@ -80,8 +86,14 @@ void Node:: send(string  addr,string msg){
     cout<<"send to "<<addr<<" "<<msg<<"."<<endl;
     
 }
+
 void Node::request(){
     
+    for (int i=0; i<interfaces.size(); i++) {
+     //   RIP req_rip=my_tbl->makeReq();
+       // RIPpacket =pack(req_rip, <#in_addr src#>, <#in_addr dst#>)
+     //   sockaddr_in si_other;
+    }
 }
 
 
@@ -151,6 +163,7 @@ RIPpacket Node::pack(RIP payload,in_addr src,in_addr dst){
     packet.iph.ip_dst=dst;
     packet.iph.ip_sum=0;
     packet.iph.ip_len=20+sizeof(payload);
+    packet.payload=payload;
     return packet;
 }
 
@@ -162,7 +175,9 @@ Testpacket Node::pack(string payload,in_addr src,in_addr dst){
     packet.iph.ip_ttl=MAXTTL;
     packet.iph.ip_src=src;
     packet.iph.ip_dst=dst;
+    packet.iph.ip_sum=0;
     packet.iph.ip_len=20+sizeof(payload);
+    packet.payload=payload;
     return packet;
     
 }

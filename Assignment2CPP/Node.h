@@ -40,9 +40,10 @@ struct Testpacket{
 class Node{
     
 private:
-        
-    char* host_IP;
-    sockaddr_in si_me;
+    
+    uint32_t host_IP;
+    sockaddr_in si_me;// server
+    Table * my_tbl;
     vector<Interface> interfaces;
     
 public:

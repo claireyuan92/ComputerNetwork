@@ -32,7 +32,7 @@ void *cmdReader(void *);
 
 
 int main(int argc, const char * argv[]) {
-        
+    
     if(argc!=2){
         printf("Usage: Take one file as commandline input\n");
         return 1;
@@ -46,31 +46,31 @@ int main(int argc, const char * argv[]) {
     // Create NODE
     
     Node mynode(f);
-  
-  //Node mynode;
-
+    
+    //Node mynode;
+    
     pthread_t cmdTh;
     if( pthread_create( &cmdTh , NULL ,  cmdReader , (void*) &mynode) < 0){
-            perror("error: create thread");
-            return 1;
-        }
-	cout<<"after create thread\n";
-	pthread_join(cmdTh,NULL);
-      	pthread_detach(cmdTh);
-	cout<<"detach\n";
+        perror("error: create thread");
+        return 1;
+    }
+    cout<<"after create thread\n";
+    pthread_join(cmdTh,NULL);
+    pthread_detach(cmdTh);
+    cout<<"detach\n";
 }
 
 
 void * cmdReader(void * mynode){
-  //cout<<"cmdReader\n";
-  string cmd;
-  Node * node = (Node *) mynode;
-  while(getline(cin,cmd)){
-    //cout<<cmd<<endl;
-     (* node).parseCmd(cmd);
-    cin.clear();
-  }
-  pthread_exit(NULL);
+    //cout<<"cmdReader\n";
+    string cmd;
+    Node * node = (Node *) mynode;
+    while(getline(cin,cmd)){
+        //cout<<cmd<<endl;
+        (* node).parseCmd(cmd);
+        cin.clear();
+    }
+    pthread_exit(NULL);
 }
 
 

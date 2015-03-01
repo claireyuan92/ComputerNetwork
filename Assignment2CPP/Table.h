@@ -43,9 +43,14 @@ typedef struct{
 class Table{
     
 private:
+    
     map<uint32_t, Route> myTable;
+    
 public:
-    Table(Interface interface);
+    
+    Table(vector<Interface> interfaces){
+        
+    }
     
     void update(RIP rip);
     RIP makeReq();
