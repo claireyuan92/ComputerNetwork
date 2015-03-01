@@ -19,12 +19,20 @@
 #include "Interface.h"
 using namespace std;
 
+<<<<<<< HEAD
 typedef struct{
     
     uint32_t cost;
     uint32_t address;
     int TTL;
 } Route;
+=======
+
+#include <netinet/inet.h>
+
+
+#define 
+>>>>>>> 79f1889c0d27a895879e848d9b81fd036f2b4a63
 
 
 typedef struct{
