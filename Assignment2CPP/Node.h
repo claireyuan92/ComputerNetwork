@@ -9,9 +9,10 @@
 #ifndef __Routing__Node__
 #define __Routing__Node__
 
-#include "Interface.h"
+
 #include "Table.h"
 #include "ipsum.h"
+#include<pthread.h>
 #include <netinet/ip.h>
 
 #define h_addr h_addr_list[0] /* for backward compatibility */
@@ -37,6 +38,8 @@ struct Testpacket{
     ip iph;
     string payload;
 };
+
+
 
 class Node{
     
@@ -74,11 +77,14 @@ public:
         
     }
     template<typename T>
-    void send(uint32_t addr,T packet);
+    void send(uint32_t addr,T packet){
+        cout<<"send"<<endl;
+        return;
+    }
     
     
     //new thread
-    void *recv(void *socket_desc);
+  //  void *myrecv(void *socket_desc);
 
     void request(); 
     void response();

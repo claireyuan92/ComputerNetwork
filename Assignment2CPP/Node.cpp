@@ -8,8 +8,26 @@
 
 #include "Node.h"
 #include <arpa/inet.h>
-
 #include <stdio.h>
+
+
+
+void * myrecv(void *socket_desc){
+    
+
+    
+    char buf[BUFLEN];
+    int s=*(int*)socket_desc;
+    sockaddr si_other;
+    socklen_t len=sizeof(si_other);
+    if ((::recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *)&si_other,&len))<0){
+        perror("recvfrom():");
+        exit(1);
+    }
+    
+    return NULL;
+}
+
 
 Node::Node(FILE *f){
     
@@ -41,14 +59,13 @@ Node::Node(FILE *f){
     
     
     //4. Building Server
-
     socklen_t s;
     
     if((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
-         perror("Create socket error:");
+        perror("Create socket error:");
     
     memset((char *) &si_me, 0, sizeof(si_me));
-
+    
     si_me.sin_family = AF_INET;
     si_me.sin_addr.s_addr = htonl(INADDR_ANY);
     
@@ -56,9 +73,15 @@ Node::Node(FILE *f){
         perror("simplex-talk: bind");
         exit(1);
     }
-    
     //5. new thread to receive --------not completed
+    pthread_t recvTh;
+    pthread_create (&recvTh, NULL, myrecv, (void*)s);
+    pthread_detach(recvTh);
+  
+
     
+
+
     //6. Request route info
     request();
     
@@ -67,9 +90,9 @@ Node::Node(FILE *f){
 }
 
 void Node::c_ifconfig(){
-    for (int i=0; i < interfaces.size(); i++) {
+    for (int i=0; i <interfaces.size(); i++) {
         
-        cout<<i<<" "<<interfaces.at(i).configure()<<endl;
+        cout<<(i+1)<<" "<<interfaces.at(i).configure()<<endl;
     }
 }
 
@@ -82,7 +105,9 @@ void Node::c_down(int interface_id){
     
     if (interface_id<1 || interface_id > interfaces.size()) {
         cout<<"Interface"<<interface_id<<"not found"<<endl;
+        return;
     }
+    
     interfaces[interface_id].setstatus(0);
     
     cout<<"Interface "<<interface_id<<" down."<<endl;
@@ -92,6 +117,7 @@ void Node::c_up(int interface_id){
     
     if (interface_id<1 || interface_id > interfaces.size()) {
         cout<<"Interface"<<interface_id<<"not found"<<endl;
+        return;
     }
     interfaces[interface_id].setstatus(1);
     cout<<"Interface "<<interface_id<<" up."<<endl;
@@ -106,7 +132,7 @@ void Node::request(){
     for (int i=0; i<interfaces.size(); i++) {
           RIP req_rip=my_tbl.makeReq();
         RIPpacket rip=pack(req_rip,interfaces[i].my_VIP, interfaces[i].remote_VIP);
-        send(interfaces[i].remote_VIP, rip);
+        send<RIPpacket>(interfaces[i].remote_VIP, rip);
     }
 }
 
@@ -206,18 +232,5 @@ Testpacket Node::pack(string payload,in_addr_t src,in_addr_t dst){
 }
  */
 
-void * Node ::recv(void *socket_desc){
-    
-    char buf[BUFLEN];
-    int s=*(int*)socket_desc;
-    sockaddr si_other;
-    socklen_t len=sizeof(si_other);
-    if ((::recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *)&si_other,&len))<0){
-        perror("recvfrom():");
-        exit(1);
-    }
-    
-    
-    return NULL;
-}
+
 

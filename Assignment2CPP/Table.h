@@ -16,9 +16,8 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include <map>
+
 #include "Interface.h"
-
-
 
 using namespace std;
 
@@ -33,7 +32,7 @@ typedef struct{
 typedef struct{
     uint16_t command;
     uint16_t num_entries;
-    Entry * entries;
+    vector<Entry> entries;
     
 } RIP;
 
@@ -44,18 +43,34 @@ private:
     map<uint32_t, Route> myTable;
     
 public:
-    Table();
+    Table(){}
     void init(vector<Interface> interfaces){
         
-        for (vector<Interface>:: iterator it; it!=interfaces.end(); ++it) {
+        for (vector<Interface>:: iterator it=interfaces.begin(); it!=interfaces.end(); ++it) {
  
             myTable.insert(it->parseRoute());
         }
     }
     
     void update(RIP rip);
-    RIP makeReq();
-    RIP makeResp(int interface_id);
+    
+    RIP makeReq(){
+        
+        RIP rip;
+        rip.command=1;
+        rip.num_entries=myTable.size();
+        for (map<uint32_t, Route>::iterator it=myTable.begin(); it!=myTable.end(); ++it) {
+            Entry etr;
+            etr.address=it->first;
+            etr.cost=it->second.cost;
+            rip.entries.push_back(etr);
+        }
+        return rip;
+    }
+    RIP makeResp(int interface_id){
+        RIP rip;
+        return rip;
+    }
     
 };
 
