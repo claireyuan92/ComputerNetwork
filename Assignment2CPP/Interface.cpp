@@ -37,7 +37,7 @@ Interface::Interface(char *line){
     }
     
     cout<<"Socket Created\n"<<endl;
-    memset((char *) &sin, 0, sizeof(sin));
+    memset((char *) &sin,mmnmnmnmnbnb m 0, sizeof(sin));
     sin.sin_addr.s_addr = htonl(INADDR_ANY);
     sin.sin_family =AF_INET;
     sin.sin_port=htons(remote_port)

@@ -45,8 +45,6 @@ private:
     sockaddr_in si_me;
     vector<Interface> interfaces;
     
-
-    
 public:
     
     Node(FILE *f);
@@ -66,12 +64,16 @@ public:
     void up(int interface_id);
     
     void send(string addr,string msg);
-    bool parseCmd(string cmd);
+    
+    //new thread
+    void *recv(void *socket_desc);
+
+    void request(); 
+    void response();
     
     //helpers
-    void recv();
-    
-    void forward();
+    bool parseCmd(string cmd);
+    void send_helper(in_addr src,in_addr dst);//packet,send to
     
 
     

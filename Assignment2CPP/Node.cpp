@@ -9,7 +9,6 @@
 #include "Node.h"
 
 
-
 Node::Node(FILE *f){
     
     char *line = NULL;
@@ -30,10 +29,8 @@ Node::Node(FILE *f){
     }
     
     //3. Building Server
-    sockaddr_in si_other;
-    socklen_t s, slen=sizeof(si_other);
-    
-    char buf[BUFLEN];
+
+    socklen_t s;
     
     if((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
          perror("Create socket error:");
@@ -47,16 +44,9 @@ Node::Node(FILE *f){
         perror("simplex-talk: bind");
         exit(1);
     }
-    /*
     
-    if ((::recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *)&si_other, &slen))<0){
-         perror("recvfrom():");
-         exit(1);
-    }
-    */
+    request();
  
-
-    
 
 }
 
@@ -90,13 +80,12 @@ void Node:: send(string  addr,string msg){
     cout<<"send to "<<addr<<" "<<msg<<"."<<endl;
     
 }
-
-
-//helpers
-void Node::recv(){
+void Node::request(){
     
 }
 
+
+//helpers
 
 bool Node:: parseCmd(string cmd){
     
@@ -176,5 +165,21 @@ Testpacket Node::pack(string payload,in_addr src,in_addr dst){
     packet.iph.ip_len=20+sizeof(payload);
     return packet;
     
+}
+
+
+void * Node ::recv(void *socket_desc){
+    
+    char buf[BUFLEN];
+    int s=*(int*)socket_desc;
+    sockaddr si_other;
+    socklen_t len=sizeof(si_other);
+    if ((::recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *)&si_other,&len))<0){
+        perror("recvfrom():");
+        exit(1);
+    }
+    
+    
+    return NULL;
 }
 
