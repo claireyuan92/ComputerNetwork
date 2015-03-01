@@ -10,21 +10,26 @@
 
 using namespace std;
 
-Interface::Interface(char *line){
+Interface::Interface(int myid, char *line){
+    interface_id=myid;
     char *pch;
     struct hostent *hp;
     hp=gethostbyname(strtok(line, ":"));
-    remote_IP=strdup(hp->h_addr);
+    in_addr ip;
+    inet_aton(strdup(hp->h_addr), &ip);
+    remote_IP=ip.s_addr;
     
     pch = strtok (NULL, " ");
     
     remote_port=atoi(pch);
     
     pch= strtok (NULL, " ");
-    my_VIP = pch;
+    inet_aton(pch, &ip);
+    my_VIP = ip.s_addr;
     
     pch= strtok (NULL, " ");
-    remote_VIP = pch;
+    inet_aton(pch, &ip);
+    remote_VIP = ip.s_addr;
     
     /*
     int sock;
@@ -49,8 +54,10 @@ void Interface:: setstatus(int stat){
 }
 
 string Interface::configure(){
-    
-    string result = my_VIP + (status? (" up" ): (" down"));
+  
+    in_addr s;
+    s.s_addr=my_VIP;
+    string result = string(inet_ntoa(s)) + (status? (" up" ): (" down"));
     return result;
 }
 

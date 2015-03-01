@@ -9,6 +9,8 @@
 #include "Node.h"
 #include <arpa/inet.h>
 
+#include <stdio.h>
+
 Node::Node(FILE *f){
     
     char *line = NULL;
@@ -27,13 +29,15 @@ Node::Node(FILE *f){
     
     
     //2. Creating interfaces
+    int i=1;
     while (getline(&line,&linecap, f)>0){
-        Interface myIF(line);
+        Interface myIF(i,line);
         interfaces.push_back(myIF);
+        i++;
     }
     
     //3. Creating Routing table
-    my_tbl=new Table(interfaces);
+        my_tbl.init(interfaces);
     
     
     //4. Building Server
@@ -55,7 +59,10 @@ Node::Node(FILE *f){
     
     //5. new thread to receive --------not completed
     
+    //6. Request route info
     request();
+    
+    //7. Response
 
 }
 
@@ -68,9 +75,14 @@ void Node::c_ifconfig(){
 
 void Node::c_routes(){
     
+    
 }
 
 void Node::c_down(int interface_id){
+    
+    if (interface_id<1 || interface_id > interfaces.size()) {
+        cout<<"Interface"<<interface_id<<"not found"<<endl;
+    }
     interfaces[interface_id].setstatus(0);
     
     cout<<"Interface "<<interface_id<<" down."<<endl;
@@ -78,6 +90,9 @@ void Node::c_down(int interface_id){
 
 void Node::c_up(int interface_id){
     
+    if (interface_id<1 || interface_id > interfaces.size()) {
+        cout<<"Interface"<<interface_id<<"not found"<<endl;
+    }
     interfaces[interface_id].setstatus(1);
     cout<<"Interface "<<interface_id<<" up."<<endl;
     
@@ -89,9 +104,9 @@ void Node::c_up(int interface_id){
 void Node::request(){
     
     for (int i=0; i<interfaces.size(); i++) {
-     //   RIP req_rip=my_tbl->makeReq();
-       // RIPpacket =pack(req_rip, <#in_addr src#>, <#in_addr dst#>)
-     //   sockaddr_in si_other;
+          RIP req_rip=my_tbl.makeReq();
+        RIPpacket rip=pack(req_rip,interfaces[i].my_VIP, interfaces[i].remote_VIP);
+        send(interfaces[i].remote_VIP, rip);
     }
 }
 
@@ -102,12 +117,12 @@ bool Node:: parseCmd(string cmd){
     
     //ifconfig
     if(!strcmp(cmd.c_str(),"ifconfig")){
-        ifconfig();
+        c_ifconfig();
         return true;
     }
     //route
     if(!strcmp(cmd.c_str(),"routes")){
-        routes();
+        c_routes();
         return true;
     }
     //down
@@ -120,7 +135,7 @@ bool Node:: parseCmd(string cmd){
         //cout<<cmdid<<endl;
         //istringstream(cmdid)>>id;
         id = atoi(cmdid);
-        down(id);
+        c_down(id);
         return true;
     }
     if(!strncmp(cmd.c_str(),"up ",3)){
@@ -130,7 +145,7 @@ bool Node:: parseCmd(string cmd){
         char * cmdid = strtok(buf," ");
         cmdid = strtok(NULL," ");
         id = atoi(cmdid);
-        up(id);
+        c_up(id);
         return true;
     }
     
@@ -156,23 +171,28 @@ bool Node:: parseCmd(string cmd){
 }
 
 
-RIPpacket Node::pack(RIP payload,in_addr src,in_addr dst){
+RIPpacket Node::pack(RIP payload,in_addr_t src,in_addr_t dst){
     RIPpacket packet;
-    packet.iph.ip_p=200;/* */
+    packet.iph.ip_p=200;/* protocol */
     packet.iph.ip_tos=0;
     packet.iph.ip_ttl=MAXTTL;
-    packet.iph.ip_src=src;
-    packet.iph.ip_dst=dst;
+    in_addr src_ip;
+    src_ip.s_addr=src;
+    packet.iph.ip_src=src_ip;
+    in_addr dst_ip;
+    dst_ip.s_addr=dst;
+    packet.iph.ip_dst=dst_ip;
     packet.iph.ip_sum=0;
     packet.iph.ip_len=20+sizeof(payload);
     packet.payload=payload;
+   // packet.iph.ip_sum=ip_sum((char*)&packet,(int)sizeof(packet.iph));
     return packet;
 }
-
-Testpacket Node::pack(string payload,in_addr src,in_addr dst){
+/*
+Testpacket Node::pack(string payload,in_addr_t src,in_addr_t dst){
     
     Testpacket packet;
-    packet.iph.ip_p=0;/* protocol */
+    packet.iph.ip_p=0;
     packet.iph.ip_tos=0;
     packet.iph.ip_ttl=MAXTTL;
     packet.iph.ip_src=src;
@@ -182,9 +202,9 @@ Testpacket Node::pack(string payload,in_addr src,in_addr dst){
     packet.payload=payload;
     packet.iph.ip_sum=ip_sum((char*)&packet,sizeof(packet.iph));
     return packet;
-    
+ 
 }
-
+ */
 
 void * Node ::recv(void *socket_desc){
     

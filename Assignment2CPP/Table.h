@@ -44,11 +44,13 @@ private:
     map<uint32_t, Route> myTable;
     
 public:
-    
-    Table(int interafce_id){
+    Table();
+    void init(vector<Interface> interfaces){
         
-        myTable
-        
+        for (vector<Interface>:: iterator it; it!=interfaces.end(); ++it) {
+ 
+            myTable.insert(it->parseRoute());
+        }
     }
     
     void update(RIP rip);

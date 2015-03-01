@@ -46,23 +46,25 @@ private:
     sockaddr_in sin;
     //IP addresses/ports
     int remote_port;
-    string my_VIP;
-    string remote_VIP;
-    string remote_IP;
+    uint32_t remote_IP;
     int status;
     
 public:
     
-    Interface(char *line);
+    int interface_id;
+    uint32_t my_VIP;
+    uint32_t remote_VIP;
+    Interface(int interface_id, char *line);
     
     void setstatus(int stat);
     
     std::string configure();
     
-    Route parseRoute(int interface_id){
+     pair<uint32_t, Route> parseRoute(){
         Route rt;
         rt.cost=1;
         rt.interface_id=interface_id;
+         return pair<uint32_t, Route>(remote_VIP,rt);
     }
     
     

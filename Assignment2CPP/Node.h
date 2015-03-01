@@ -11,6 +11,7 @@
 
 #include "Interface.h"
 #include "Table.h"
+#include "ipsum.h"
 #include <netinet/ip.h>
 
 #define h_addr h_addr_list[0] /* for backward compatibility */
@@ -43,7 +44,7 @@ private:
     
     uint32_t host_IP;
     sockaddr_in si_me;// server
-    Table * my_tbl;
+    Table my_tbl;
     vector<Interface> interfaces;
     
 public:
@@ -52,12 +53,11 @@ public:
     
     Node();
     ~Node(){
-        delete my_tbl;
     }
     
-    RIPpacket pack(RIP payload,in_addr src,in_addr dst);
+    RIPpacket pack(RIP payload,in_addr_t src,in_addr_t dst);
     
-    Testpacket pack(string payload,in_addr src,in_addr dst);
+  //  Testpacket pack(string payload,in_addr src,in_addr dst);
     
     //command functions;
     
@@ -74,11 +74,7 @@ public:
         
     }
     template<typename T>
-    void send(uint32_t addr,T packet){
-        
-    
-    }
-    
+    void send(uint32_t addr,T packet);
     
     
     //new thread
