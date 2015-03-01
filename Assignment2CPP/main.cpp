@@ -21,16 +21,18 @@
 
 #include<pthread.h> //for threading , link with lpthread
 
-void *cmdReader(void *);
 
 
 #define MAX_ROUTES 200
 #define MAX_TTL 120
 
+void *cmdReader(void *);
+
+
 
 
 int main(int argc, const char * argv[]) {
-      
+  /*      
     if(argc!=2){
         printf("Usage: Take one file as commandline input\n");
         return 1;
@@ -42,26 +44,33 @@ int main(int argc, const char * argv[]) {
         return 1;
     }
     // Create NODE
+    
     Node mynode(f);
-  cin.clear();
+  */
+  Node mynode;
 
-    pthread_t cmdTh ;
-        if( pthread_create( &cmdTh , NULL ,  cmdReader , (void*) &mynode) < 0)
-        {
+    pthread_t cmdTh;
+    if( pthread_create( &cmdTh , NULL ,  cmdReader , (void*) &mynode) < 0){
             perror("error: create thread");
             return 1;
         }
-      
-	pthread_detach( cmdTh);//!!!!!!!!!!!!!!!!!!!!!no possible memmery leak
-	
+	cout<<"after create thread\n";
+	pthread_join(cmdTh,NULL);
+      	pthread_detach(cmdTh);
+	cout<<"detach\n";
 }
 
+
 void * cmdReader(void * mynode){
+  //cout<<"cmdReader\n";
   string cmd;
   Node * node = (Node *) mynode;
   while(getline(cin,cmd)){
     //cout<<cmd<<endl;
-    (* node).parseCmd(cmd);
+     (* node).parseCmd(cmd);
     cin.clear();
   }
+  pthread_exit(NULL);
 }
+
+
