@@ -51,20 +51,35 @@ public:
     Node(FILE *f);
     
     Node();
+    ~Node(){
+        delete my_tbl;
+    }
     
     RIPpacket pack(RIP payload,in_addr src,in_addr dst);
     
     Testpacket pack(string payload,in_addr src,in_addr dst);
     
-    void ifconfig();
+    //command functions;
     
-    void routes();
+    void c_ifconfig();
     
-    void down(int interface_id);
+    void c_routes();
     
-    void up(int interface_id);
+    void c_down(int interface_id);
     
-    void send(string addr,string msg);
+    void c_up(int interface_id);
+    
+    void c_send(uint32_t addr,string msg){
+        cout<<"send to "<<addr<<" "<<msg<<"."<<endl;
+        
+    }
+    template<typename T>
+    void send(uint32_t addr,T packet){
+        
+    
+    }
+    
+    
     
     //new thread
     void *recv(void *socket_desc);

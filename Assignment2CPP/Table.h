@@ -18,16 +18,13 @@
 #include <map>
 #include "Interface.h"
 
+
+
 using namespace std;
 
-typedef struct{
-    
-    uint32_t cost;
-    int interface_id;
-    int TTL;
-} Route;
 
 
+// RIP packet
 typedef struct{
     uint32_t cost;
     uint32_t address;
@@ -48,7 +45,9 @@ private:
     
 public:
     
-    Table(vector<Interface> interfaces){
+    Table(int interafce_id){
+        
+        myTable
         
     }
     

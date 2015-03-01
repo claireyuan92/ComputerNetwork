@@ -28,7 +28,16 @@
 #define DOWN 0//
 #define UP 1//
 
+//Route in Table
+typedef struct{
+    
+    uint32_t cost;
+    int interface_id;
+    int TTL;
+} Route;
+
 using namespace std;
+
 
 class Interface{
     
@@ -46,9 +55,18 @@ public:
     
     Interface(char *line);
     
-  void setstatus(int stat);
+    void setstatus(int stat);
     
     std::string configure();
+    
+    Route parseRoute(int interface_id){
+        Route rt;
+        rt.cost=1;
+        rt.interface_id=interface_id;
+    }
+    
+    
+    
 };
 
 

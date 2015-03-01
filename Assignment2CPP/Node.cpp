@@ -20,7 +20,8 @@ Node::Node(FILE *f){
         hp=gethostbyname(strtok(line, ":"));
         char *p=strdup(hp->h_addr);
         struct in_addr ip;
-        host_IP=inet_aton(p, &ip);
+        inet_aton(p, &ip);
+        host_IP=ip.s_addr;
         si_me.sin_port = htons(atoi(strtok(NULL, "\n")));
     }
     
@@ -34,7 +35,8 @@ Node::Node(FILE *f){
     //3. Creating Routing table
     my_tbl=new Table(interfaces);
     
-    //3. Building Server
+    
+    //4. Building Server
 
     socklen_t s;
     
@@ -51,29 +53,30 @@ Node::Node(FILE *f){
         exit(1);
     }
     
+    //5. new thread to receive --------not completed
+    
     request();
- 
 
 }
 
-void Node::ifconfig(){
+void Node::c_ifconfig(){
     for (int i=0; i < interfaces.size(); i++) {
         
         cout<<i<<" "<<interfaces.at(i).configure()<<endl;
     }
 }
 
-void Node::routes(){
+void Node::c_routes(){
     
 }
 
-void Node:: down(int interface_id){
+void Node::c_down(int interface_id){
     interfaces[interface_id].setstatus(0);
     
     cout<<"Interface "<<interface_id<<" down."<<endl;
 }
 
-void Node:: up(int interface_id){
+void Node::c_up(int interface_id){
     
     interfaces[interface_id].setstatus(1);
     cout<<"Interface "<<interface_id<<" up."<<endl;
@@ -81,11 +84,7 @@ void Node:: up(int interface_id){
     
 }
 
-void Node:: send(string  addr,string msg){
-    
-    cout<<"send to "<<addr<<" "<<msg<<"."<<endl;
-    
-}
+
 
 void Node::request(){
     
@@ -145,7 +144,10 @@ bool Node:: parseCmd(string cmd){
         des = cmdip;
         cmd.erase(0,des.size()+1); 
         msg = cmd;
-        send(des,cmd);
+        struct in_addr ip;
+        inet_aton(des.c_str(), &ip);
+        uint32_t desn;
+        send(desn,cmd);
         return true;
     }
     
@@ -178,6 +180,7 @@ Testpacket Node::pack(string payload,in_addr src,in_addr dst){
     packet.iph.ip_sum=0;
     packet.iph.ip_len=20+sizeof(payload);
     packet.payload=payload;
+    packet.iph.ip_sum=ip_sum((char*)&packet,sizeof(packet.iph));
     return packet;
     
 }
