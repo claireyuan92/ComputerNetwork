@@ -119,8 +119,8 @@ void * timer(void * mynode){
     while(1){
       for (int i = 0; i < RES_TIME; i++){
 	sleep(1);
-	//(node->my_tbl).OneSec();
-	cout<<"wakeup"<<i<<endl;
+	node->OneSec();
+	//cout<<"wakeup"<<i<<endl;
       } 
       node->response();
     }
