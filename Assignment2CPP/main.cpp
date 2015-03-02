@@ -6,27 +6,17 @@
 //  Copyright (c) 2015 Claire. All rights reserved.
 //
 
-#include <stdio.h>
-#include <string.h>
 
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdbool.h>
+
 #include "Node.h"
-
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <stdlib.h>
-
-#include<pthread.h> //for threading , link with lpthread
-
 
 
 #define MAX_ROUTES 200
 #define MAX_TTL 120
 
 void *cmdReader(void *);
+
+void * myrecv(void * mynode);
 
 
 int main(int argc, const char * argv[]) {
@@ -45,7 +35,15 @@ int main(int argc, const char * argv[]) {
     
     Node mynode(f);
     
-    //Node mynode;
+    //Listen from others
+    /*
+    pthread_t recvTh;
+    pthread_create (&recvTh, NULL, myrecv, (void*) &mynode);
+    pthread_join(recvTh,NULL);
+    pthread_detach(recvTh);
+    */
+    
+    //Open Command thread
     
     pthread_t cmdTh;
     if( pthread_create( &cmdTh , NULL ,  cmdReader , (void*) &mynode) < 0){
@@ -56,6 +54,7 @@ int main(int argc, const char * argv[]) {
     pthread_join(cmdTh,NULL);
     pthread_detach(cmdTh);
     cout<<"detach\n";
+    
 }
 
 
@@ -65,10 +64,40 @@ void * cmdReader(void * mynode){
     Node * node = (Node *) mynode;
     while(getline(cin,cmd)){
         //cout<<cmd<<endl;
-        (* node).parseCmd(cmd);
+        node->parseCmd(cmd);
         cin.clear();
     }
     pthread_exit(NULL);
+}
+
+void * myrecv(void * mynode){
+    
+    cout<<"enter recv";
+    Node * node = (Node *) mynode;
+    socklen_t s;
+    sockaddr_in si_me, si_other;
+    if((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
+        perror("Create socket error:");
+    
+    memset((char *) &si_me, 0, sizeof(si_me));
+    
+    si_me.sin_family = AF_INET;
+    si_me.sin_addr.s_addr = htonl(INADDR_ANY);
+    
+    if ((::bind(s, (struct sockaddr *)&si_me, sizeof(si_me))) < 0){
+        perror("simplex-talk: bind");
+        exit(1);
+    }
+    
+    char buf[BUFLEN];
+    
+    socklen_t len=sizeof(si_other);
+    
+    while((::recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *)&si_other,&len))){
+            node->depack(buf);
+    }
+    
+    return NULL;
 }
 
 

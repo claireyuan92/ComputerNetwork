@@ -12,33 +12,17 @@
 
 #include "Table.h"
 #include "ipsum.h"
-#include<pthread.h>
-#include <netinet/ip.h>
 
-#define h_addr h_addr_list[0] /* for backward compatibility */
 
-/*
-typedef struct {
-    NodeAddr Destination;
-    NodeAddr NextHop;
-    int Cost;
-    u_short TTL;
-} Route;
-*/
+//#define h_addr h_addr_list[0] /* for backward compatibility */
 
-using namespace std;
 
-struct RIPpacket{
+
+
+struct Packet{
     ip iph;
-    RIP payload;
+    void * payload;
 };
-
-
-struct Testpacket{
-    ip iph;
-    string payload;
-};
-
 
 
 class Node{
@@ -55,12 +39,9 @@ public:
     Node(FILE *f);
     
     Node();
-    ~Node(){
-    }
+
     
-    RIPpacket pack(RIP payload,in_addr_t src,in_addr_t dst);
-    
-  //  Testpacket pack(string payload,in_addr src,in_addr dst);
+    //Testpacket pack(const void * buf,in_addr src,in_addr dst);
     
     //command functions;
     
@@ -72,26 +53,23 @@ public:
     
     void c_up(int interface_id);
     
-    void c_send(uint32_t addr,string msg){
-        cout<<"send to "<<addr<<" "<<msg<<"."<<endl;
-        
-    }
-    template<typename T>
-    void send(uint32_t addr,T packet){
-        cout<<"send"<<endl;
-        return;
-    }
+    void c_send(uint32_t dst_addr,string msg);
+    
+    void send(uint32_t addr,int port,const void * buf);
     
     
-    //new thread
-  //  void *myrecv(void *socket_desc);
-
     void request(); 
     void response();
     
-    //helpers
+    
+    //helper
+    void depack(char * packet){
+        return;
+    }
+    
+    Packet pack(void * buf,in_addr_t src,in_addr_t dst, int packet_type);
     bool parseCmd(string cmd);
-    void send_helper(in_addr src,in_addr dst);//packet,send to
+    //void send_helper(in_addr src,in_addr dst);//packet,send to
     
 
     
