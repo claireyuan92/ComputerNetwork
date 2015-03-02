@@ -61,4 +61,65 @@ string Interface::configure(){
 }
 
 
+void Interface:: send(int s,const void * packet) {
+    
+    struct sockaddr_in si_other;
+    int slen=sizeof(si_other);
+    
+    if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
+        cerr<<"socket"<<endl;;
+    
+    memset((char *) &si_other, 0, sizeof(si_other));
+    si_other.sin_family = AF_INET;
+    si_other.sin_port = htons(remote_port);
+    in_addr p;
+    p.s_addr=remote_IP;
+    si_other.sin_addr=p;
+    
+    //NEED FRAGMENTATION
+    
+    char buf[MTU];
+    memcpy(buf, packet, sizeof(packet));
+    
+    if (sendto(s, buf, sizeof(buf), 0,(struct sockaddr*) &si_other, slen)==-1)
+        cerr<<"sendto()"<<endl;
+    
+    close(s);
+    
+    cout<<"send"<<endl;
+    return;
+}
+
+Packet Interface::pack(void * payload,in_addr_t dst, int packet_type){
+    
+    Packet packet;
+    if (packet_type==1) {
+        packet.iph.ip_p=200;/* protocol */
+    }
+    else if(packet_type==0){
+        packet.iph.ip_p=0;/* protocol */
+    }
+    else{
+        cerr<<"Packet type unknown"<<endl;
+    }
+    
+    packet.iph.ip_tos=0;//not sure
+    packet.iph.ip_ttl=MAXTTL;
+    in_addr src_ip;
+    src_ip.s_addr=my_VIP;
+    packet.iph.ip_src=src_ip;
+    in_addr dst_ip;
+    dst_ip.s_addr=dst;
+    packet.iph.ip_dst=dst_ip;
+    packet.iph.ip_sum=0;
+    packet.iph.ip_len=20+sizeof(payload);
+    
+    //packet.payload
+    memcpy(&packet.payload, payload,sizeof(payload));
+    packet.iph.ip_sum=ip_sum((char*)&packet,(int)sizeof(packet.iph));
+    return packet;
+}
+
+
+
 

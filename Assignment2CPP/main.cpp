@@ -25,29 +25,29 @@ void *timer(void *);
 
 
 int main(int argc, const char * argv[]) {
-  /*    
-    if(argc!=2){
-        printf("Usage: Take one file as commandline input\n");
-        return 1;
-    }
-    
-    FILE *f = fopen("/Users/Meng/ComputerNetwork/Assignment2/BInput","r");
-    if(f==NULL){
-        perror("Cannot open file ");
-        return 1;
-    }
-    // Create NODE
-    
-    Node mynode(f);
-  */
-  Node mynode;
+    /*
+     if(argc!=2){
+     printf("Usage: Take one file as commandline input\n");
+     return 1;
+     }
+     
+     FILE *f = fopen("/Users/Meng/ComputerNetwork/Assignment2/BInput","r");
+     if(f==NULL){
+     perror("Cannot open file ");
+     return 1;
+     }
+     // Create NODE
+     
+     Node mynode(f);
+     */
+    Node mynode;
     //Listen from others
     /*
-    pthread_t recvTh;
-    pthread_create (&recvTh, NULL, myrecv, (void*) &mynode);
-    //pthread_join(recvTh,NULL);//????????
-    pthread_detach(recvTh);
-    */
+     pthread_t recvTh;
+     pthread_create (&recvTh, NULL, myrecv, (void*) &mynode);
+     //pthread_join(recvTh,NULL);//????????
+     pthread_detach(recvTh);
+     */
     
     //Open Command thread
     pthread_t timerTh;
@@ -57,7 +57,7 @@ int main(int argc, const char * argv[]) {
     }
     //pthread_join(cmdTh,NULL);
     pthread_detach(timerTh);
-
+    
     
     pthread_t cmdTh;
     if( pthread_create( &cmdTh , NULL ,  cmdReader , (void*) &mynode) < 0){
@@ -108,7 +108,7 @@ void * myrecv(void * mynode){
     socklen_t len=sizeof(si_other);
     
     while((::recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *)&si_other,&len))){
-            node->depack(buf);
+        node->depack(buf);
     }
     
     return NULL;
@@ -117,14 +117,14 @@ void * myrecv(void * mynode){
 void * timer(void * mynode){
     Node * node = (Node *) mynode;
     while(1){
-      for (int i = 0; i < RES_TIME; i++){
-	sleep(1);
-	node->OneSec();
-	//cout<<"wakeup"<<i<<endl;
-      } 
-      node->response();
+        for (int i = 0; i < RES_TIME; i++){
+            sleep(1);
+            node->OneSec();
+            //cout<<"wakeup"<<i<<endl;
+        }
+        node->response();
     }
-    pthread_exit(NULL);
+   // pthread_exit(NULL);
 }
 
 

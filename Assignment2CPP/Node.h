@@ -11,18 +11,9 @@
 
 
 #include "Table.h"
-#include "ipsum.h"
 
 
 //#define h_addr h_addr_list[0] /* for backward compatibility */
-
-
-
-
-struct Packet{
-    ip iph;
-    void * payload;
-};
 
 
 class Node{
@@ -30,16 +21,16 @@ class Node{
 private:
     
     uint32_t host_IP;
-    sockaddr_in si_me;// server
+    int host_PORT;
     Table my_tbl;
     vector<Interface> interfaces;
     
 public:
-    
+    socklen_t s; // server socket
+
     Node(FILE *f);
     
-    Node();
-
+    Node(){}
     
     //Testpacket pack(const void * buf,in_addr src,in_addr dst);
     
@@ -55,7 +46,7 @@ public:
     
     void c_send(uint32_t dst_addr,string msg);
     
-    void send(uint32_t addr,int port,const void * buf);
+    //void send(uint32_t addr,int port,const void * buf);
     
     
     void request(); 
@@ -63,15 +54,13 @@ public:
     
     
     //helper
-    void depack(char * packet){
-        return;
-    }
-    
-    Packet pack(void * buf,in_addr_t src,in_addr_t dst, int packet_type);
+    void depack(char * packet);
     bool parseCmd(string cmd);
     //void send_helper(in_addr src,in_addr dst);//packet,send to
     
-
+    void OneSec(){
+        my_tbl.OneSecT();
+    }
     
 };
 

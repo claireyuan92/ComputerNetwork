@@ -23,14 +23,17 @@
 #include <pthread.h>
 #include <map>
 
+#include "ipsum.h"
+
 
 #define MTU 1400
 #define BUFLEN 64*1024
 #define DOWN 0//
 #define UP 1//
 #define MAX_TTL 12
-#define MAC_COST 16
+#define MAX_COST 16
 
+using namespace std;
 //Route in Table
 typedef struct{
     
@@ -39,14 +42,18 @@ typedef struct{
     int TTL;
 } Route;
 
-using namespace std;
+
+struct Packet{
+    ip iph;
+    void * payload;
+};
 
 
 class Interface{
     
 private:
     //UDP socket
-    sockaddr_in sin;
+   // sockaddr_in sin;
     //IP addresses/ports
     
     uint32_t remote_IP;
@@ -59,19 +66,22 @@ public:
     uint32_t my_VIP;
     uint32_t remote_VIP;
     
-    
     Interface(int interface_id, char *line);
+    
+    void send(int s, const void * packet);
     void setstatus(int stat);
     std::string configure();
     
     //Used for initializing the Table
-     pair<uint32_t, Route> parseRoute(){
+    pair<uint32_t, Route> parseRoute(){
         Route rt;
         rt.cost=1;
         rt.interface_id=interface_id;
         rt.TTL=MAX_TTL;
          return pair<uint32_t, Route>(remote_VIP,rt);
     }
+
+    Packet pack(void * payload,in_addr_t dst, int packet_type);
     
     
     

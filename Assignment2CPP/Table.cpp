@@ -49,18 +49,19 @@ void Table::printRoutes(){
     
 }
 
-Route Table::selectRoute(uint32_t addr){
-    Route res;
-    return res;
+Route * Table::selectRoute(uint32_t addr){
+    return NULL;
 }
 
+
+
 void Table::OneSecT(){
-  //for TTL--
+    //for TTL--
     for (map<uint32_t, Route>::iterator it=myTable.begin(); it!=myTable.end(); ++it) {
-      (it->second).TTL--;
-       //check TTL<=0.if <= 0, cost = MAX 
-      if ( (it->second).TTL-- <= 0){
-	(it->second).cost=MAX_COST;
-      }
+        (it->second).TTL--;
+        //check TTL<=0.if <= 0, cost = MAX
+        if ( (it->second).TTL-- <= 0){
+            (it->second).cost=MAX_COST;
+        }
     }
 }

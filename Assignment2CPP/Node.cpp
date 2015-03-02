@@ -23,7 +23,9 @@ Node::Node(FILE *f){
         struct in_addr ip;
         inet_aton(p, &ip);
         host_IP=ip.s_addr;
-        si_me.sin_port = htons(atoi(strtok(NULL, "\n")));
+       // si_me.sin_addr=ip;
+        host_PORT = htons(atoi(strtok(NULL, "\n")));
+    
     }
     
     
@@ -92,17 +94,14 @@ void Node::c_up(int interface_id){
 void Node::c_send(uint32_t dst_addr,string msg){
     
     //1. Choose Route
-    Route myroute;
+    Route *myroute;
     myroute=my_tbl.selectRoute(dst_addr);
     
     //2. Pack
-    uint32_t src=interfaces[myroute.interface_id].my_VIP;
-    Packet mypack= pack( (void *)&msg, src,dst_addr,0);
-    uint32_t nextHop=interfaces[myroute.interface_id].remote_VIP;
-    uint32_t port= interfaces[myroute.interface_id].remote_port;
-    
+    Packet mypack= interfaces[myroute->interface_id].pack( (void *)&msg,dst_addr,0);
+
     //3.Send
-    send(nextHop, port, &mypack);
+    interfaces[myroute->interface_id].send(s,&mypack);
     
     cout<<"send to "<<dst_addr<<" "<<msg<<"."<<endl;
     
@@ -113,80 +112,52 @@ void Node::request(){
     
     for (int i=0; i<interfaces.size(); i++) {
         RIP req_rip=my_tbl.makeReq();
-        Packet rip=pack(&req_rip,interfaces[i].my_VIP, interfaces[i].remote_VIP,1);//RIP
-        send(interfaces[i].remote_VIP,interfaces[i].remote_port, &rip);
+        Packet rip=interfaces[i].pack(&req_rip,interfaces[i].remote_VIP,1);//RIP
+        interfaces[i].send(s,&rip);
+        //send(interfaces[i].remote_VIP,interfaces[i].remote_port, &rip);
     }
 }
 
 void Node::response(){
     for (int i=0; i<interfaces.size(); i++) {
         RIP req_rip=my_tbl.makeResp();
-        Packet rip=pack(&req_rip,interfaces[i].my_VIP, interfaces[i].remote_VIP,1);//RIP
-        send(interfaces[i].remote_VIP,interfaces[i].remote_port, &rip);
+        Packet rip=interfaces[i].pack(&req_rip,interfaces[i].remote_VIP,1);//RIP
+        interfaces[i].send(s,&rip);
+        //send(interfaces[i].remote_VIP,interfaces[i].remote_port, &rip);
     }
 }
 
-Packet Node ::pack(void * payload,in_addr_t src,in_addr_t dst, int packet_type){
+
+
+
+void Node::depack(char * pack){
+    Packet * mypack;
+    memcpy(mypack, &pack, sizeof(pack));
+    //Local Delivery
+    for (vector<Interface> ::iterator it=interfaces.begin(); it!=interfaces.end(); ++it) {
+        if (it->my_VIP==mypack->iph.ip_dst.s_addr) {
+            //RIP
+            if (mypack->iph.ip_p==200) {
+        //        checkRIP();
+                return;
+            }
+            else if(mypack->iph.ip_p==0){
+                cout<<(char *)(mypack->payload)<<endl;
+                return;
+            }
+            else{
+                cerr<<"Not a Valid pack"<<endl;
+            }
+        }
+    }
     
-    Packet packet;
-    if (packet_type==1) {
-        packet.iph.ip_p=200;/* protocol */
-    }
-    else if(packet_type==0){
-        packet.iph.ip_p=0;/* protocol */
-    }
-    else{
-        cerr<<"Packet type unknown"<<endl;
-    }
+    //Forwarding
     
-    packet.iph.ip_tos=0;//not sure
-    packet.iph.ip_ttl=MAXTTL;
-    in_addr src_ip;
-    src_ip.s_addr=src;
-    packet.iph.ip_src=src_ip;
-    in_addr dst_ip;
-    dst_ip.s_addr=dst;
-    packet.iph.ip_dst=dst_ip;
-    packet.iph.ip_sum=0;
-    packet.iph.ip_len=20+sizeof(payload);
-    //packet.payload
-    memcpy(&packet.payload, payload,sizeof(payload));
-    //packet.iph.ip_sum=ip_sum((char*)&packet,(int)sizeof(packet.iph));
-    return packet;
+    Route * myrt;
+    if((myrt=my_tbl.selectRoute(mypack->iph.ip_dst.s_addr))!=NULL){
+        --(mypack->iph.ip_ttl);
+    }
 }
-
-void Node:: send(uint32_t addr,int port,const void * packet) {
-    
-    struct sockaddr_in si_other;
-    int s, slen=sizeof(si_other);
-    
-    if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
-        cerr<<"socket"<<endl;;
-        
-        memset((char *) &si_other, 0, sizeof(si_other));
-        si_other.sin_family = AF_INET;
-        si_other.sin_port = htons(port);
-        in_addr p;
-    p.s_addr=addr;
-    si_other.sin_addr=p;
-    
-    //NEED FRAGMENTATION
-    
-    char buf[MTU];
-    memcpy(buf, packet, sizeof(packet));
-    
-    if (sendto(s, buf, sizeof(buf), 0,(struct sockaddr*) &si_other, slen)==-1)
-        cerr<<"sendto()"<<endl;
-        
-        close(s);
-        
-        cout<<"send"<<endl;
-        return;
-}
-
-
-
-
 //helpers
 
 bool Node:: parseCmd(string cmd){
