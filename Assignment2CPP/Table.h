@@ -2,7 +2,7 @@
 #ifndef __Table__
 #define __Table__
 
-
+#define MAX_COST 16
 
 #include "Interface.h"
 
@@ -40,6 +40,8 @@ public:
     void printRoutes();
     
     Route selectRoute(uint32_t addr);
+
+    void OneSecT();
 };
 
 

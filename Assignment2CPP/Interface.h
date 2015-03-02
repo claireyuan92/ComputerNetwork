@@ -29,6 +29,7 @@
 #define DOWN 0//
 #define UP 1//
 #define MAX_TTL 12
+#define MAC_COST 16
 
 //Route in Table
 typedef struct{
