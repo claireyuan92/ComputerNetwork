@@ -1,3 +1,6 @@
+
+
+
 //
 //  Interface.cpp
 //  Routing
@@ -8,44 +11,24 @@
 
 #include "Interface.h"
 
+#include "ipsum.h"
 
 Interface::Interface(int myid, char *line){
+    
     interface_id=myid;
-    char *pch;
-    struct hostent *hp;
-    hp=gethostbyname(strtok(line, ":"));
-    in_addr ip;
-    inet_aton(strdup(hp->h_addr), &ip);
-    remote_IP=ip.s_addr;
-    
-    pch = strtok (NULL, " ");
-    
-    remote_port=atoi(pch);
-    
-    pch= strtok (NULL, " ");
-    inet_aton(pch, &ip);
-    my_VIP = ip.s_addr;
-    
-    pch= strtok (NULL, " ");
-    inet_aton(pch, &ip);
-    remote_VIP = ip.s_addr;
-    
-    /*
-    int sock;
-    char buf[BUFLEN];
-    
-    if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))< 0) {
-        perror("Create socket error:");
+   
 
-        
-    }
+    remote_IP=str2in_addr_t(strtok(line, ":"));
     
-    cout<<"Socket Created\n"<<endl;
-    memset((char *) &sin,mmnmnmnmnbnb m 0, sizeof(sin));
-    sin.sin_addr.s_addr = htonl(INADDR_ANY);
-    sin.sin_family =AF_INET;
-    sin.sin_port=htons(remote_port)
-     */
+    
+    remote_port=htons(atoi(strtok (NULL, " ")));
+    
+    my_VIP = str2in_addr_t(strtok(NULL , " "));
+
+    
+    remote_VIP =str2in_addr_t(strtok(NULL , " "));
+
+    
 }
 
 void Interface:: setstatus(int stat){
@@ -66,15 +49,13 @@ void Interface:: send(int s,const void * packet) {
     struct sockaddr_in si_other;
     int slen=sizeof(si_other);
     
-    if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
-        cerr<<"socket"<<endl;;
     
     memset((char *) &si_other, 0, sizeof(si_other));
     si_other.sin_family = AF_INET;
     si_other.sin_port = htons(remote_port);
     in_addr p;
     p.s_addr=remote_IP;
-    si_other.sin_addr=p;
+    si_other.sin_addr.s_addr=remote_IP;
     
     //NEED FRAGMENTATION
     
@@ -84,7 +65,7 @@ void Interface:: send(int s,const void * packet) {
     if (sendto(s, buf, sizeof(buf), 0,(struct sockaddr*) &si_other, slen)==-1)
         cerr<<"sendto()"<<endl;
     
-    close(s);
+    //close(s);
     
     cout<<"send"<<endl;
     return;
@@ -116,6 +97,7 @@ Packet Interface::pack(void * payload,in_addr_t dst, int packet_type){
     
     //packet.payload
     memcpy(&packet.payload, payload,sizeof(payload));
+    
     packet.iph.ip_sum=ip_sum((char*)&packet,(int)sizeof(packet.iph));
     return packet;
 }

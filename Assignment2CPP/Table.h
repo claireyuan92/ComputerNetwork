@@ -31,11 +31,13 @@ public:
 
     void init(vector<Interface> interfaces);
     
-    void update(RIP rip);
+    void update(RIP rip, int interface_id);
     
-    RIP makeReq();
     
-    RIP makeResp();
+    RIP makeReq(int interface_id);
+    
+    
+    RIP makeResp(int interface_id);
     
     void printRoutes();
     

@@ -25,13 +25,14 @@ void *timer(void *);
 
 
 int main(int argc, const char * argv[]) {
-    /*
+    
      if(argc!=2){
      printf("Usage: Take one file as commandline input\n");
      return 1;
      }
-     
-     FILE *f = fopen("/Users/Meng/ComputerNetwork/Assignment2/BInput","r");
+    
+    
+     FILE *f = fopen("/Users/Meng/ComputerNetwork/Assignment2CPP/AInput","r");
      if(f==NULL){
      perror("Cannot open file ");
      return 1;
@@ -39,31 +40,34 @@ int main(int argc, const char * argv[]) {
      // Create NODE
      
      Node mynode(f);
-     */
-    Node mynode;
+
+    
     //Listen from others
     /*
      pthread_t recvTh;
      pthread_create (&recvTh, NULL, myrecv, (void*) &mynode);
      //pthread_join(recvTh,NULL);//????????
      pthread_detach(recvTh);
-     */
+    */
     
     //Open Command thread
+    /*
     pthread_t timerTh;
     if( pthread_create( &timerTh , NULL ,  timer , (void*) &mynode) < 0){
         perror("error: create thread");
         return 1;
     }
     //pthread_join(cmdTh,NULL);
-    pthread_detach(timerTh);
     
+    pthread_detach(timerTh);
+    */
     
     pthread_t cmdTh;
     if( pthread_create( &cmdTh , NULL ,  cmdReader , (void*) &mynode) < 0){
         perror("error: create thread");
         return 1;
     }
+    
     cout<<"after create thread\n";
     pthread_join(cmdTh,NULL);
     pthread_detach(cmdTh);
@@ -84,35 +88,7 @@ void * cmdReader(void * mynode){
     pthread_exit(NULL);
 }
 
-void * myrecv(void * mynode){
-    
-    cout<<"enter recv";
-    Node * node = (Node *) mynode;
-    socklen_t s;
-    sockaddr_in si_me, si_other;
-    if((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
-        perror("Create socket error:");
-    
-    memset((char *) &si_me, 0, sizeof(si_me));
-    
-    si_me.sin_family = AF_INET;
-    si_me.sin_addr.s_addr = htonl(INADDR_ANY);
-    
-    if ((::bind(s, (struct sockaddr *)&si_me, sizeof(si_me))) < 0){
-        perror("simplex-talk: bind");
-        exit(1);
-    }
-    
-    char buf[BUFLEN];
-    
-    socklen_t len=sizeof(si_other);
-    
-    while((::recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *)&si_other,&len))){
-        node->depack(buf);
-    }
-    
-    return NULL;
-}
+
 
 void * timer(void * mynode){
     Node * node = (Node *) mynode;

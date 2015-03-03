@@ -9,24 +9,35 @@
 #include "Node.h"
 
 
+ void * Node::myrecv(void * mynode){
+    
+    cout<<"enter recv";
+    Node * node = (Node *) mynode;
+
+    sockaddr_in si_other;
+    char buf[BUFLEN];
+    socklen_t len=sizeof(si_other);
+    
+    while((::recvfrom(node->s, buf, BUFLEN, 0, (struct sockaddr *)&si_other,&len))){
+        cout<<"RECEIVING"<<endl;
+        node->depack(buf);
+    }
+    
+    return NULL;
+}
 
 Node::Node(FILE *f){
     
     char *line = NULL;
     size_t linecap = 0;
     
-    //1. assigning port
-    if (getline(&line, &linecap, f)){
-        struct hostent *hp;
-        hp=gethostbyname(strtok(line, ":"));
-        char *p=strdup(hp->h_addr);
-        struct in_addr ip;
-        inet_aton(p, &ip);
-        host_IP=ip.s_addr;
-       // si_me.sin_addr=ip;
-        host_PORT = htons(atoi(strtok(NULL, "\n")));
     
+    //1. assigning port and host
+    if (getline(&line, &linecap, f)){
+        host_IP=str2in_addr_t(strtok(line, ":"));
+        host_PORT = htons(atoi(strtok(NULL, "\n")));
     }
+    
     
     
     //2. Creating interfaces
@@ -41,12 +52,28 @@ Node::Node(FILE *f){
         my_tbl.init(interfaces);
     
     
-    //4. Building Server
-
+    //4. Building a Server
+    
+    sockaddr_in si_me;
+    if((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
+        perror("Create socket error:");
+    
+    memset((char *) &si_me, 0, sizeof(si_me));
+    
+    si_me.sin_family = AF_INET;
+    si_me.sin_addr.s_addr = htonl(INADDR_ANY);
+    
+    if ((::bind(s, (struct sockaddr *)&si_me, sizeof(si_me))) < 0){
+        perror("simplex-talk: bind");
+        exit(1);
+    }
     
     //5. new thread to receive --------not completed
+    pthread_create (&recvTh, NULL, myrecv, this);
+    //pthread_detach(recvTh);
     
     //6. Request route info
+    
     request();
     
     //7. Response
@@ -98,10 +125,10 @@ void Node::c_send(uint32_t dst_addr,string msg){
     myroute=my_tbl.selectRoute(dst_addr);
     
     //2. Pack
-    Packet mypack= interfaces[myroute->interface_id].pack( (void *)&msg,dst_addr,0);
+    Packet mypack= interfaces[myroute->nexthop].pack( (void *)&msg,dst_addr,0);
 
     //3.Send
-    interfaces[myroute->interface_id].send(s,&mypack);
+    interfaces[myroute->nexthop].send(s,&mypack);
     
     cout<<"send to "<<dst_addr<<" "<<msg<<"."<<endl;
     
@@ -111,7 +138,7 @@ void Node::c_send(uint32_t dst_addr,string msg){
 void Node::request(){
     
     for (int i=0; i<interfaces.size(); i++) {
-        RIP req_rip=my_tbl.makeReq();
+        RIP req_rip=my_tbl.makeReq(i);
         Packet rip=interfaces[i].pack(&req_rip,interfaces[i].remote_VIP,1);//RIP
         interfaces[i].send(s,&rip);
         //send(interfaces[i].remote_VIP,interfaces[i].remote_port, &rip);
@@ -120,13 +147,12 @@ void Node::request(){
 
 void Node::response(){
     for (int i=0; i<interfaces.size(); i++) {
-        RIP req_rip=my_tbl.makeResp();
+        RIP req_rip=my_tbl.makeResp(i);
         Packet rip=interfaces[i].pack(&req_rip,interfaces[i].remote_VIP,1);//RIP
         interfaces[i].send(s,&rip);
         //send(interfaces[i].remote_VIP,interfaces[i].remote_port, &rip);
     }
 }
-
 
 
 
@@ -138,9 +164,14 @@ void Node::depack(char * pack){
         if (it->my_VIP==mypack->iph.ip_dst.s_addr) {
             //RIP
             if (mypack->iph.ip_p==200) {
-        //        checkRIP();
+                //check command
+                if (((RIP *)(mypack->payload))->command==1) {//Request
+                    response();
+                }
+              //  my_tbl.update()
                 return;
             }
+            //test data
             else if(mypack->iph.ip_p==0){
                 cout<<(char *)(mypack->payload)<<endl;
                 return;
@@ -151,11 +182,12 @@ void Node::depack(char * pack){
         }
     }
     
-    //Forwarding
+    //Forwarding INCOMPLETE
     
     Route * myrt;
     if((myrt=my_tbl.selectRoute(mypack->iph.ip_dst.s_addr))!=NULL){
         --(mypack->iph.ip_ttl);
+        interfaces[myrt->nexthop].send(s, mypack);
     }
 }
 //helpers
@@ -206,10 +238,7 @@ bool Node:: parseCmd(string cmd){
         des = cmdip;
         cmd.erase(0,des.size()+1); 
         msg = cmd;
-        struct in_addr ip;
-        inet_aton(des.c_str(), &ip);
-        uint32_t desn;
-        c_send(desn,cmd);
+        c_send(str2in_addr_t(des),cmd);
         return true;
     }
     
