@@ -79,7 +79,7 @@ Node::Node(FILE *f){
     
     //6. Request route info
     
-   // response();
+    request();
     
     //7. Response
     
@@ -146,7 +146,18 @@ void Node::request(){
     
     for (int i=0; i<interfaces.size(); i++) {
         rip req_rip=my_tbl.makeReq(i);
-        Packet rip=interfaces[i].pack((char *)&req_rip,interfaces[i].remote_VIP,1);//RIP
+	char buf[MTU-sizeof(ip)];
+	char * bufp;
+	memcpy(buf,&(req_rip.command),sizeof(uint16_t));
+	bufp = buf+2;
+	uint16_t num = req_rip.num_entries;
+	memcpy(bufp,&num,sizeof(uint16_t));
+	bufp = bufp+2;
+	for(int j; j < num; j++){
+	memcpy(bufp,&(req_rip.entries[j]),sizeof(req_rip.entries));
+	bufp = bufp + 8;
+	}
+        Packet rip=interfaces[i].pack(buf,interfaces[i].remote_VIP,1);//RIP
         interfaces[i].send(s,rip);
         //send(interfaces[i].remote_VIP,interfaces[i].remote_port, &rip);
     }
