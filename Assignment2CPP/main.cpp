@@ -32,7 +32,7 @@ int main(int argc, const char * argv[]) {
      }
     
     
-     FILE *f = fopen("./AInput","r");
+     FILE *f = fopen(argv[1],"r");
      if(f==NULL){
      perror("Cannot open file ");
      return 1;
@@ -43,15 +43,15 @@ int main(int argc, const char * argv[]) {
 
     
     //Listen from others
-    /*
+     /* 
      pthread_t recvTh;
      pthread_create (&recvTh, NULL, myrecv, (void*) &mynode);
      //pthread_join(recvTh,NULL);//????????
      pthread_detach(recvTh);
-    */
+     */
     
     //Open Command thread
-    /*
+    
     pthread_t timerTh;
     if( pthread_create( &timerTh , NULL ,  timer , (void*) &mynode) < 0){
         perror("error: create thread");
@@ -60,16 +60,16 @@ int main(int argc, const char * argv[]) {
     //pthread_join(cmdTh,NULL);
     
     pthread_detach(timerTh);
-    */
+    
     
     pthread_t cmdTh;
     if( pthread_create( &cmdTh , NULL ,  cmdReader , (void*) &mynode) < 0){
         perror("error: create thread");
         return 1;
     }
-    
+    while(1){}
     cout<<"after create thread\n";
-    pthread_join(cmdTh,NULL);
+    //pthread_join(cmdTh,NULL);
     pthread_detach(cmdTh);
     cout<<"detach\n";
     
@@ -99,6 +99,7 @@ void * timer(void * mynode){
             //cout<<"wakeup"<<i<<endl;
         }
         node->response();
+	//cout<<"response\n";
     }
    // pthread_exit(NULL);
 }

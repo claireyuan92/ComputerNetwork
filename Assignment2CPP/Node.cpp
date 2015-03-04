@@ -18,7 +18,7 @@
     char buf[BUFLEN];
     socklen_t len=sizeof(si_other);
     
-    while((::recvfrom(node->s, buf, BUFLEN, 0, (struct sockaddr *)&si_other,&len))){
+    while((::recvfrom(node->s, buf, BUFLEN, 0, (struct sockaddr *)&si_other,&len))>=0){
         cout<<"RECEIVING"<<endl;
         node->depack(buf);
     }
