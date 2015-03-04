@@ -26,7 +26,8 @@ Interface::Interface(int myid, char *line){
     my_VIP = str2in_addr_t(strtok(NULL , " "));
 
     
-    remote_VIP =str2in_addr_t(strtok(NULL , " "));
+    remote_VIP =str2in_addr_t(strtok(NULL , " \n"));
+    status = UP;
 
     
 }
@@ -52,8 +53,8 @@ void Interface:: send(int s,const void * packet) {
     
     memset((char *) &si_other, 0, sizeof(si_other));
     si_other.sin_family = AF_INET;
-    //si_other.sin_port = remote_port;
-    si_other.sin_port = htons(17001);
+    si_other.sin_port = remote_port;
+    //si_other.sin_port = htons(17001);
 
     //in_addr p;
     //p.s_addr=remote_IP;
