@@ -72,6 +72,7 @@ void Interface:: send(int s,const void * packet) {
     char buf[MTU];
     memcpy(buf, packet, sizeof(packet));
     
+
     if (sendto(s,buf, sizeof(buf), 0,(struct sockaddr*) &si_other, slen)==-1)
       cerr<<"sendto()"<<endl;
     

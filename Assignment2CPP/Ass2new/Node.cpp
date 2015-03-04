@@ -137,6 +137,8 @@ void Node::c_send(uint32_t dst_addr,string msg){
     
     cout<<"send to "<<dst_addr<<" "<<msg<<"."<<endl;
     
+    
+    
 }
 
 
@@ -162,26 +164,28 @@ void Node::response(){
 
 
 void Node::depack(char * pack){
-    Packet * mypack = (Packet *)&pack;
+    Packet mypack;
    // memcpy(mypack, &pack, sizeof(pack));
     //Local Delivery
-    ip myip= *(ip*)pack;
+   ip myip= *(ip*)pack;
     char *mypayload= (char *)(pack+sizeof(ip));
+    mypack.iph=myip;
+    mypack.payload=mypayload;
     //
     for (vector<Interface> ::iterator it=interfaces.begin(); it!=interfaces.end(); ++it) {
-        if (it->my_VIP==mypack->iph.ip_dst.s_addr) {
+        if (it->my_VIP==mypack.iph.ip_dst.s_addr) {
             //RIP
-            if (mypack->iph.ip_p==200) {
+            if (mypack.iph.ip_p==200) {
                 //check command
-                if (((RIP *)(mypack->payload))->command==1) {//Request
+                if (((RIP *)(mypack.payload))->command==1) {//Request
                     response();
                 }
               //  my_tbl.update()
                 return;
             }
             //test data
-            else if(mypack->iph.ip_p==0){
-                cout<<(char *)(mypack->payload)<<endl;
+            else if(mypack.iph.ip_p==0){
+                cout<<(char *)(mypack.payload)<<endl;
                 return;
             }
             else{
@@ -193,9 +197,9 @@ void Node::depack(char * pack){
     //Forwarding INCOMPLETE
     
     Route * myrt;
-    if((myrt=my_tbl.selectRoute(mypack->iph.ip_dst.s_addr))!=NULL){
-        --(mypack->iph.ip_ttl);
-        interfaces[myrt->nexthop-1].send(s, mypack);
+    if((myrt=my_tbl.selectRoute(mypack.iph.ip_dst.s_addr))!=NULL){
+        --(mypack.iph.ip_ttl);
+        interfaces[myrt->nexthop-1].send(s, &mypack);
     }
 }
 //helpers
