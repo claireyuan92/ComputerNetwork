@@ -14,11 +14,11 @@
 		<string>https://github.com/claireyuan92/ComputerNetwork.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>Assignment2CPP/Ass2new/Ass2new.xcodeproj</string>
+	<string>Ass2new/Ass2new.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>E9389FA3B97ADE5BFCE7B5208DDBAB1642CF6A67</key>
-		<string>../../../..</string>
+		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/claireyuan92/ComputerNetwork.git</string>

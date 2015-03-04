@@ -59,7 +59,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/Meng/Desktop/Ass2new/AInput"
+            argument = "/Users/Meng/Desktop/Ass2new/BInput"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

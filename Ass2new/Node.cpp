@@ -79,7 +79,7 @@ Node::Node(FILE *f){
     
     //6. Request route info
     
-   // request();
+   // response();
     
     //7. Response
     
@@ -108,7 +108,7 @@ void Node::c_down(int interface_id){
     }
     
     interfaces[interface_id-1].setstatus(DOWN);
-    
+    my_tbl.removeRoute(interface_id);
     cout<<"Interface "<<interface_id<<" down."<<endl;
 }
 
@@ -145,7 +145,7 @@ void Node::c_send(uint32_t dst_addr,string msg){
 void Node::request(){
     
     for (int i=0; i<interfaces.size(); i++) {
-        RIP req_rip=my_tbl.makeReq(i);
+        rip req_rip=my_tbl.makeReq(i);
         Packet rip=interfaces[i].pack((char *)&req_rip,interfaces[i].remote_VIP,1);//RIP
         interfaces[i].send(s,rip);
         //send(interfaces[i].remote_VIP,interfaces[i].remote_port, &rip);
@@ -154,7 +154,7 @@ void Node::request(){
 
 void Node::response(){
     for (int i=0; i<interfaces.size(); i++) {
-        RIP req_rip=my_tbl.makeResp(i);
+        rip req_rip=my_tbl.makeResp(i);
         Packet rip=interfaces[i].pack((char *)&req_rip,interfaces[i].remote_VIP,1);//RIP
         interfaces[i].send(s,rip);
         //send(interfaces[i].remote_VIP,interfaces[i].remote_port, &rip);
@@ -164,41 +164,52 @@ void Node::response(){
 
 
 void Node::depack(char * pack){
-    Packet * mypack = (Packet *)&pack;
-   // memcpy(mypack, &pack, sizeof(pack));
-    //Local Delivery
-    ip myip= *(ip*)pack;
-    char *mypayload= (char *)(pack+sizeof(ip));
-    //
-    for (vector<Interface> ::iterator it=interfaces.begin(); it!=interfaces.end(); ++it) {
-        if (it->my_VIP==mypack->iph.ip_dst.s_addr) {
-            //RIP
-            if (mypack->iph.ip_p==200) {
-                //check command
-                if (((RIP *)(mypack->payload))->command==1) {//Request
-                    response();
+        Packet mypack = *(Packet *)pack;
+        // memcpy(mypack, &pack, sizeof(pack));
+        //Local Delivery
+        ip myip= *(ip*)pack;
+        char *mypayload= (char *)(pack+sizeof(ip));
+        
+        for (vector<Interface> ::iterator it=interfaces.begin(); it!=interfaces.end(); ++it) {
+            if (it->my_VIP==mypack.iph.ip_dst.s_addr) {
+                //RIP
+                if (mypack.iph.ip_p==200) {
+                    //check command
+                    rip myrip=*(rip *)(mypack.payload);
+                    if (myrip.command==1) {//Request
+                        response();
+                        return;
+                    }
+                    if (myrip.command==2){
+                        my_tbl.update(myrip,it->interface_id);
+                        return;
+                    }
+                    
+                    else{
+                        cerr<<"Invalid command in rip"<<endl;
+                    }
                 }
-              //  my_tbl.update()
-                return;
-            }
-            //test data
-            else if(mypack->iph.ip_p==0){
-                cout<<(char *)(mypack->payload)<<endl;
-                return;
-            }
-            else{
-                cerr<<"Not a Valid pack"<<endl;
+                //test data
+                else if(mypack.iph.ip_p==0){
+                    cout<<"Received Message:"<<(char *)(mypack.payload)<<endl;
+                    return;
+                }
+                else{
+                    cerr<<"Not a Valid pack"<<endl;
+                }
             }
         }
-    }
+        
     
     //Forwarding INCOMPLETE
     
+    
     Route * myrt;
-    if((myrt=my_tbl.selectRoute(mypack->iph.ip_dst.s_addr))!=NULL){
-        --(mypack->iph.ip_ttl);
+    if((myrt=my_tbl.selectRoute(mypack.iph.ip_dst.s_addr))!=NULL){
+        --(mypack.iph.ip_ttl);
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        interfaces[myrt->nexthop-1].send(s, *mypack);
+        interfaces[myrt->nexthop-1].send(s, mypack);
+        
     }
 }
 //helpers

@@ -69,7 +69,7 @@ void Interface:: send(int s,Packet packet) {
     
     //NEED FRAGMENTATION
     
-    char buf[MTU];
+   // char buf[MTU];
     //memcpy(buf, &packet, sizeof(packet));
     
 
@@ -81,6 +81,8 @@ void Interface:: send(int s,Packet packet) {
     cout<<"send"<<si_other.sin_port<<endl;
     return;
 }
+
+
 Packet Interface::pack(const char* payload,in_addr_t dst, int packet_type){
     Packet packet;
     
@@ -133,8 +135,8 @@ Packet Interface::pack(const char* payload,in_addr_t dst, int packet_type){
     packet.iph.ip_len=20+sizeof(payload);
     
     //packet.payload
-    memcpy(packet.payload, payload,sizeof(payload));
-    
+    memcpy(packet.payload,payload,sizeof(payload));
+    rip myrip= *(rip*)payload;
     packet.iph.ip_sum=ip_sum((char*)&packet,(int)sizeof(packet.iph));
     return packet;
     

@@ -17,9 +17,9 @@ void Table::init(vector<Interface> interfaces){
 }
 
 
-RIP Table::makeReq(int interface_id){//undone
+rip Table::makeReq(int interface_id){//undone
     
-    RIP rip;
+    rip rip;
     rip.command=1;
     rip.num_entries=myTable.size();
     for (map<uint32_t, Route>::iterator it=myTable.begin(); it!=myTable.end(); ++it) {
@@ -31,15 +31,14 @@ RIP Table::makeReq(int interface_id){//undone
     return rip;
 }
 
-RIP Table::makeResp(int interface_id){//undone
-    RIP rip;
+rip Table::makeResp(int interface_id){//undone
+    rip rip;
     rip.command=2;
     rip.num_entries=myTable.size();
+    int i=0;
     for (map<uint32_t, Route>::iterator it=myTable.begin(); it!=myTable.end(); ++it) {
-        Entry etr;
-        etr.address=it->first;
-        etr.cost=it->second.cost;
-        rip.entries.push_back(etr);
+        rip.entries[i].address=it->first;
+        rip.entries[i].cost=it->second.cost;
     }
     
     return rip;
@@ -80,13 +79,17 @@ void Table::OneSecT(){
 }
 
 
-void Table::update(RIP rip,int interface_id){
+//
+void Table::update(rip rip,int interface_id){// Input Rip and where it comes from
     //for entries
     map<uint32_t,Route>::iterator it;
-    for(uint16_t i; i<rip.num_entries; i++){
+    
+    for(uint16_t i=0; i<rip.num_entries; i++){
         //find ip
         uint32_t address = rip.entries[i].address;
         if((it=myTable.find(address))!= myTable.end()){
+            //split horizon
+            
             //compare cost
             if (it->second.cost >= (rip.entries[i].cost+1)) {
                 it->second.cost = rip.entries[i].cost+1;

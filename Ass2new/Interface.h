@@ -49,6 +49,7 @@ typedef struct {
 
 
 // RIP packet
+/*
 typedef struct{
     uint32_t cost;
     uint32_t address;
@@ -61,6 +62,17 @@ typedef struct{
     vector<Entry> entries;
     
 } RIP;
+
+ */
+struct rip{
+    uint16_t command;
+    uint16_t num_entries;
+    struct {
+        uint32_t cost;
+        uint32_t address;
+    } entries[64];
+};
+
 
 class Interface{
     

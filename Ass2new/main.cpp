@@ -40,25 +40,26 @@ int main(int argc, const char * argv[]) {
 
     
     //Open Command thread
-    
+    /*
     pthread_t timerTh;
     if( pthread_create( &timerTh , NULL ,  timer , (void*) &mynode) < 0){
         perror("error: create thread");
         return 1;
     }
+     
     //pthread_join(cmdTh,NULL);
     
     pthread_detach(timerTh);
-    
+    */
     //cout<<"cmdReader\n";
-    
+    /*
     string cmd;
     while(getline(cin,cmd)){
         //cout<<cmd<<endl;
         mynode.parseCmd(cmd);
         cin.clear();
     }
-    
+    */
     
    // pthread_exit(NULL);
     /*
