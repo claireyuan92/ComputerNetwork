@@ -208,6 +208,7 @@ void Node::depack(char * pack){
     if((myrt=my_tbl.selectRoute(mypack.iph.ip_dst.s_addr))!=NULL){
         --(mypack.iph.ip_ttl);
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        mypack.iph.ip_sum=ip_sum((char*)&mypack,(int)sizeof(mypack.iph));
         interfaces[myrt->nexthop-1].send(s, mypack);
         
     }

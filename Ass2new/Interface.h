@@ -23,6 +23,8 @@
 #include <pthread.h>
 #include <map>
 
+#include "ipsum.h"
+
 
 #define MTU 1400
 #define BUFLEN 64*1024
@@ -81,7 +83,7 @@ public:
     int interface_id;
     int status;
     
-    in_port_t remote_port;
+    in_port_t remote_port; 
     uint32_t remote_IP;
     uint32_t my_VIP;
     uint32_t remote_VIP;

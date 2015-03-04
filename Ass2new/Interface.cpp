@@ -11,8 +11,6 @@
 
 #include "Interface.h"
 
-#include "ipsum.h"
-
 Interface::Interface(int myid, char *line){
     
     interface_id=myid;
