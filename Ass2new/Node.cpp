@@ -12,7 +12,7 @@
 
  void * Node::myrecv(void * mynode){
     
-    cout<<"enter recv";
+     cout<<"enter recv"<<endl;;
     Node * node = (Node *) mynode;
 
     sockaddr_in si_other;
@@ -167,20 +167,25 @@ void Node::depack(char * pack){
         Packet mypack = *(Packet *)pack;
         // memcpy(mypack, &pack, sizeof(pack));
         //Local Delivery
+        cout<<"Entering depacking"<<endl;
         ip myip= *(ip*)pack;
         char *mypayload= (char *)(pack+sizeof(ip));
         
         for (vector<Interface> ::iterator it=interfaces.begin(); it!=interfaces.end(); ++it) {
             if (it->my_VIP==mypack.iph.ip_dst.s_addr) {
                 //RIP
+                cout<<"Local Delivery"<<endl;
                 if (mypack.iph.ip_p==200) {
                     //check command
+                    cout<<" This is a RIP"<<endl;
                     rip myrip=*(rip *)(mypack.payload);
                     if (myrip.command==1) {//Request
+                        cout<<"Receiving an request, response immediately"<<endl;
                         response();
                         return;
                     }
                     if (myrip.command==2){
+                        cout<<"Receiving an response, updatetable immdiatly"<<endl;
                         my_tbl.update(myrip,it->interface_id);
                         return;
                     }
@@ -191,6 +196,7 @@ void Node::depack(char * pack){
                 }
                 //test data
                 else if(mypack.iph.ip_p==0){
+                    cout<<"This is test data"<<endl;
                     cout<<"Received Message:"<<(char *)(mypack.payload)<<endl;
                     return;
                 }
@@ -202,8 +208,7 @@ void Node::depack(char * pack){
         
     
     //Forwarding INCOMPLETE
-    
-    
+    cout<<"Forwarding"<<endl;
     Route * myrt;
     if((myrt=my_tbl.selectRoute(mypack.iph.ip_dst.s_addr))!=NULL){
         --(mypack.iph.ip_ttl);
