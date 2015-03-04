@@ -16,18 +16,20 @@
 Interface::Interface(int myid, char *line){
     
     interface_id=myid;
-   
 
     remote_IP=str2in_addr_t(strtok(line, ":"));
     
     
     remote_port=htons(atoi(strtok (NULL, " ")));
     
-    my_VIP = str2in_addr_t(strtok(NULL , " "));
+    my_VIP = inet_addr(strtok(NULL , " "));
+    
+    //str2in_addr_t(strtok(NULL , " "));
 
     
-    remote_VIP =str2in_addr_t(strtok(NULL , " \n"));
-    status = UP;
+    remote_VIP =inet_addr(strtok(NULL , " "));
+    
+    status=UP;
 
     
 }
@@ -53,11 +55,9 @@ void Interface:: send(int s,const void * packet) {
     
     memset((char *) &si_other, 0, sizeof(si_other));
     si_other.sin_family = AF_INET;
-    si_other.sin_port = remote_port;
-    //si_other.sin_port = htons(17001);
+    //si_other.sin_port = remote_port;
+    si_other.sin_port = htons(17001);
 
-    //in_addr p;
-    //p.s_addr=remote_IP;
     si_other.sin_addr.s_addr = remote_IP;
 
     /*if (inet_aton("127.0.0.1" , &si_other.sin_addr) == 0) 
