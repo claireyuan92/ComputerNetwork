@@ -1,3 +1,4 @@
+
 //
 //  Node.cpp
 //  Routing
@@ -19,7 +20,7 @@
     socklen_t len=sizeof(si_other);
     while((::recvfrom(node->s, buf, BUFLEN, 0, (struct sockaddr *)&si_other,&len))!=-1){
         cout<<buf<<endl;
-        cout<<"RECEIVING"<<endl;
+        cout<<"RECEIVING FROM"<<inet_ntoa(si_other.sin_addr)<<si_other.sin_port<<endl;
         node->depack(buf);
     }
     
@@ -161,9 +162,12 @@ void Node::response(){
 
 
 void Node::depack(char * pack){
-    Packet * mypack;
-    memcpy(mypack, &pack, sizeof(pack));
+    Packet * mypack = (Packet *)&pack;
+   // memcpy(mypack, &pack, sizeof(pack));
     //Local Delivery
+    ip myip= *(ip*)pack;
+    char *mypayload= (char *)(pack+sizeof(ip));
+    //
     for (vector<Interface> ::iterator it=interfaces.begin(); it!=interfaces.end(); ++it) {
         if (it->my_VIP==mypack->iph.ip_dst.s_addr) {
             //RIP

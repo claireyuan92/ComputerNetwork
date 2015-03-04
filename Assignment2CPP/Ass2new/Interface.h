@@ -47,6 +47,20 @@ typedef struct {
 }Packet;
 
 
+// RIP packet
+typedef struct{
+    uint32_t cost;
+    uint32_t address;
+    
+} Entry;
+
+typedef struct{
+    uint16_t command;
+    uint16_t num_entries;
+    vector<Entry> entries;
+    
+} RIP;
+
 class Interface{
     
 public:
@@ -74,7 +88,7 @@ public:
          return pair<uint32_t, Route>(remote_VIP,rt);
     }
 
-    Packet pack(void * payload,in_addr_t dst, int packet_type);
+  Packet pack(void * payload,in_addr_t dst, int packet_type);
     
     in_addr_t str2in_addr_t(const string & str) const{
         in_addr_t ip;

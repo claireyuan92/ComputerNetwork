@@ -62,6 +62,7 @@ Route * Table::selectRoute(uint32_t addr){
             return &it->second;
         }
     }
+    cerr<<"Route Not Found"<<endl;
     return NULL;
 }
 

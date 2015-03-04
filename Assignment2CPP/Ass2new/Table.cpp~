@@ -73,7 +73,7 @@ void Table::OneSecT(){
         (it->second).TTL--;
         //check TTL<=0.if <= 0, cost = MAX
         if ( (it->second).TTL-- <= 0){
-            (it->second).cost=MAX_COST+1;
+            (it->second).cost=MAX_COST;
         }
     }
 }
