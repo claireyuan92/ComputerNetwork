@@ -32,7 +32,7 @@ int main(int argc, const char * argv[]) {
      }
     
     
-     FILE *f = fopen("/Users/Meng/ComputerNetwork/Assignment2CPP/AInput","r");
+     FILE *f = fopen("./AInput","r");
      if(f==NULL){
      perror("Cannot open file ");
      return 1;

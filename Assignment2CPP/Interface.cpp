@@ -52,22 +52,31 @@ void Interface:: send(int s,const void * packet) {
     
     memset((char *) &si_other, 0, sizeof(si_other));
     si_other.sin_family = AF_INET;
-    si_other.sin_port = htons(remote_port);
-    in_addr p;
-    p.s_addr=remote_IP;
-    si_other.sin_addr.s_addr=remote_IP;
+    //si_other.sin_port = remote_port;
+    si_other.sin_port = htons(17001);
+
+    //in_addr p;
+    //p.s_addr=remote_IP;
+    si_other.sin_addr.s_addr = remote_IP;
+
+    /*if (inet_aton("127.0.0.1" , &si_other.sin_addr) == 0) 
+    {
+        fprintf(stderr, "inet_aton() failed\n");
+        exit(1);
+    }
+    */
     
     //NEED FRAGMENTATION
     
     char buf[MTU];
     memcpy(buf, packet, sizeof(packet));
     
-    if (sendto(s, buf, sizeof(buf), 0,(struct sockaddr*) &si_other, slen)==-1)
-        cerr<<"sendto()"<<endl;
+    if (sendto(s,buf, sizeof(buf), 0,(struct sockaddr*) &si_other, slen)==-1)
+      cerr<<"sendto()"<<endl;
     
     //close(s);
     
-    cout<<"send"<<endl;
+    cout<<"send"<<si_other.sin_port<<endl;
     return;
 }
 

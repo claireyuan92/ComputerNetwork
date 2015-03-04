@@ -125,10 +125,10 @@ void Node::c_send(uint32_t dst_addr,string msg){
     myroute=my_tbl.selectRoute(dst_addr);
     
     //2. Pack
-    Packet mypack= interfaces[myroute->nexthop].pack( (void *)&msg,dst_addr,0);
+    Packet mypack= interfaces[myroute->nexthop-1].pack( (void *)&msg,dst_addr,0);
 
     //3.Send
-    interfaces[myroute->nexthop].send(s,&mypack);
+    interfaces[myroute->nexthop-1].send(s,&mypack);
     
     cout<<"send to "<<dst_addr<<" "<<msg<<"."<<endl;
     
