@@ -72,6 +72,8 @@ Node::Node(FILE *f){
         exit(1);
     }
     
+    
+    response();
     //5. new thread to receive --------not completed
     pthread_create (&recvTh, NULL, myrecv, this);
     
@@ -79,10 +81,10 @@ Node::Node(FILE *f){
     
     //6. Request route info
     
-    request();
+   // request();
     
     //7. Response
-    
+    //
 
 }
 
@@ -146,6 +148,7 @@ void Node::request(){
     
     for (int i=0; i<interfaces.size(); i++) {
         rip req_rip=my_tbl.makeReq(i);
+        /*
 	char buf[MTU-sizeof(ip)];
 	char * bufp;
 	memcpy(buf,&(req_rip.command),sizeof(uint16_t));
@@ -156,8 +159,11 @@ void Node::request(){
 	for(int j; j < num; j++){
 	memcpy(bufp,&(req_rip.entries[j]),sizeof(req_rip.entries));
 	bufp = bufp + 8;
-	}
-        Packet rip=interfaces[i].pack(buf,interfaces[i].remote_VIP,1);//RIP
+    }
+        */
+    
+    
+        Packet rip=interfaces[i].pack((char *)&req_rip,interfaces[i].remote_VIP,1);//RIP
         interfaces[i].send(s,rip);
         //send(interfaces[i].remote_VIP,interfaces[i].remote_port, &rip);
     }
@@ -166,8 +172,9 @@ void Node::request(){
 void Node::response(){
     for (int i=0; i<interfaces.size(); i++) {
         rip req_rip=my_tbl.makeResp(i);
-        Packet rip=interfaces[i].pack((char *)&req_rip,interfaces[i].remote_VIP,1);//RIP
-        interfaces[i].send(s,rip);
+        Packet myrip=interfaces[i].pack((char *)&req_rip,interfaces[i].remote_VIP,1);//RIP
+        struct rip test=*(rip*)(myrip.payload);
+        interfaces[i].send(s,myrip);
         //send(interfaces[i].remote_VIP,interfaces[i].remote_port, &rip);
     }
 }
@@ -197,6 +204,7 @@ void Node::depack(char * pack){
                     }
                     if (myrip.command==2){
                         cout<<"Receiving an response, updatetable immdiatly"<<endl;
+                        cout<<myrip.entries[0].address<<endl;
                         my_tbl.update(myrip,it->interface_id);
                         return;
                     }

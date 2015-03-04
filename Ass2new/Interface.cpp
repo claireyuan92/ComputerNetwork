@@ -133,11 +133,12 @@ Packet Interface::pack(const char* payload,in_addr_t dst, int packet_type){
     packet.iph.ip_len=20+sizeof(payload);
     
     //packet.payload
-    memcpy(packet.payload,payload,sizeof(payload));
-    rip myrip= *(rip*)payload;
+   // packet.payload=strdup(payload);
+    memcpy(packet.payload,payload,sizeof(packet.payload));
+    //
     packet.iph.ip_sum=ip_sum((char*)&packet,(int)sizeof(packet.iph));
+    rip myrip= *(rip*)packet.payload;
     return packet;
-    
         
 }
 
